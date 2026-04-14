@@ -1,1136 +1,1924 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LabFlow — Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/dashboard.css">
-</head>
-<body>
-
-<!-- ===========================
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LabFlow — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  </head>
+  <body>
+    <!-- ===========================
      SIDEBAR
 =========================== -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    </div>
-    <div>
-      <div class="brand-name">LabFlow</div>
-      <div class="brand-sub" id="sidebarLabName">Loading...</div>
-    </div>
-  </div>
-
-  <div class="sidebar-section-label">MENU UTAMA</div>
-  <nav class="sidebar-nav">
-    <!-- Dashboard: grid 4 kotak -->
-    <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-        <rect x="13" y="3" width="8" height="8" rx="1.5"/>
-        <rect x="13" y="13" width="8" height="8" rx="1.5"/>
-        <rect x="3" y="13" width="8" height="8" rx="1.5"/>
-      </svg>
-      Dashboard
-    </a>
-    <!-- Jadwal: kalender -->
-    <a class="nav-item" data-page="jadwal" onclick="showPage('jadwal')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" fill="none"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-        <line x1="8" y1="14" x2="8" y2="14" stroke-width="3"/>
-        <line x1="12" y1="14" x2="12" y2="14" stroke-width="3"/>
-        <line x1="16" y1="14" x2="16" y2="14" stroke-width="3"/>
-      </svg>
-      Jadwal Penggunaan
-    </a>
-    <!-- Inventaris: box/package -->
-    <a class="nav-item" data-page="inventaris" onclick="showPage('inventaris')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-        <line x1="12" y1="22.08" x2="12" y2="12"/>
-      </svg>
-      Inventaris Alat
-    </a>
-    <!-- Laporan: warning triangle -->
-    <a class="nav-item" data-page="laporan" onclick="showPage('laporan')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      Laporan Kerusakan
-    </a>
-    <!-- Peminjaman: clipboard/hand -->
-    <a class="nav-item" data-page="peminjaman" onclick="showPage('peminjaman')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-        <rect x="9" y="3" width="6" height="4" rx="1"/>
-        <line x1="9" y1="12" x2="15" y2="12"/>
-        <line x1="9" y1="16" x2="13" y2="16"/>
-      </svg>
-      Peminjaman Alat
-    </a>
-  </nav>
-
-  <div class="sidebar-section-label">AKUN</div>
-  <nav class="sidebar-nav">
-    <!-- Profil: user circle -->
-    <a class="nav-item" data-page="profil" onclick="showPage('profil')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      Profil Saya
-    </a>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="sidebar-user">
-      <div class="s-avatar" id="sidebarAvatar">BS</div>
-      <div>
-        <div class="s-name" id="sidebarTeacher">Budi Santoso</div>
-        <div class="s-email" id="sidebarEmail">budi@labflow.id</div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">LabFlow</div>
+          <div class="brand-sub" id="sidebarLabName">Loading...</div>
+        </div>
       </div>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Keluar
-    </button>
-  </div>
-</aside>
 
-<!-- ===========================
+      <div class="sidebar-section-label">MENU UTAMA</div>
+      <nav class="sidebar-nav">
+        <!-- Dashboard: grid 4 kotak -->
+        <a
+          class="nav-item active"
+          data-page="dashboard"
+          onclick="showPage('dashboard')"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="3" y="3" width="8" height="8" rx="1.5" />
+            <rect x="13" y="3" width="8" height="8" rx="1.5" />
+            <rect x="13" y="13" width="8" height="8" rx="1.5" />
+            <rect x="3" y="13" width="8" height="8" rx="1.5" />
+          </svg>
+          Dashboard
+        </a>
+        <!-- Jadwal: kalender -->
+        <a class="nav-item" data-page="jadwal" onclick="showPage('jadwal')">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" fill="none" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+            <line x1="8" y1="14" x2="8" y2="14" stroke-width="3" />
+            <line x1="12" y1="14" x2="12" y2="14" stroke-width="3" />
+            <line x1="16" y1="14" x2="16" y2="14" stroke-width="3" />
+          </svg>
+          Jadwal Penggunaan
+        </a>
+        <!-- Inventaris: box/package -->
+        <a
+          class="nav-item"
+          data-page="inventaris"
+          onclick="showPage('inventaris')"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+            />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+          Inventaris Alat
+        </a>
+        <!-- Laporan: warning triangle -->
+        <a class="nav-item" data-page="laporan" onclick="showPage('laporan')">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Laporan Kerusakan
+        </a>
+        <!-- Peminjaman: clipboard/hand -->
+        <a
+          class="nav-item"
+          data-page="peminjaman"
+          onclick="showPage('peminjaman')"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+            />
+            <rect x="9" y="3" width="6" height="4" rx="1" />
+            <line x1="9" y1="12" x2="15" y2="12" />
+            <line x1="9" y1="16" x2="13" y2="16" />
+          </svg>
+          Peminjaman Alat
+        </a>
+      </nav>
+
+      <div class="sidebar-section-label">AKUN</div>
+      <nav class="sidebar-nav">
+        <!-- Profil: user circle -->
+        <a class="nav-item" data-page="profil" onclick="showPage('profil')">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profil Saya
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="s-avatar" id="sidebarAvatar">BS</div>
+          <div>
+            <div class="s-name" id="sidebarTeacher">Budi Santoso</div>
+            <div class="s-email" id="sidebarEmail">budi@labflow.id</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===========================
      MAIN WRAPPER
 =========================== -->
-<div class="main-wrapper">
-
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="hamburger" onclick="toggleSidebar()">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="topbar-breadcrumb">
-        <span class="breadcrumb-lab" id="topbarLab">Computer Lab</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-dim)">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-        <span class="breadcrumb-page" id="topbarPage">Dashboard</span>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <span class="topbar-date" id="topbarDate"></span>
-
-      <!-- Notifikasi -->
-      <div class="notif-btn" onclick="toggleNotif()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-dot"></span>
-        <div class="notif-dropdown" id="notifDropdown">
-          <div class="notif-header">NOTIFIKASI</div>
-          <div class="notif-item warn">⚠ Proyektor Epson #1 perlu perhatian</div>
-          <div class="notif-item warn">⚠ Desktop PC #22 tidak bisa booting</div>
-          <div class="notif-item info">📋 3 jadwal aktif minggu ini</div>
-          <div class="notif-item ok">✓ UPS #3 selesai diperbaiki</div>
+    <div class="main-wrapper">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-breadcrumb">
+            <span class="breadcrumb-lab" id="topbarLab">Computer Lab</span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              style="color: var(--text-dim)"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <span class="breadcrumb-page" id="topbarPage">Dashboard</span>
+          </div>
         </div>
-      </div>
+        <div class="topbar-right">
+          <span class="topbar-date" id="topbarDate"></span>
 
-      <!-- User -->
-      <div class="topbar-user" onclick="toggleUserMenu()">
-        <div class="t-avatar" id="topbarAvatar">BS</div>
-        <span class="t-name" id="topbarTeacher">Budi Santoso</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-dim)">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-        <div class="user-dropdown" id="userDropdown">
-          <div class="ud-header">
-            <div class="ud-avatar" id="udAvatar">BS</div>
-            <div>
-              <div class="ud-name" id="udName">Budi Santoso</div>
-              <div class="ud-email" id="udEmail">budi@labflow.id</div>
+          <!-- Notifikasi -->
+          <div class="notif-btn" onclick="toggleNotif()">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="notif-dot"></span>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-header">NOTIFIKASI</div>
+              <div class="notif-item warn">
+                ⚠ Proyektor Epson #1 perlu perhatian
+              </div>
+              <div class="notif-item warn">
+                ⚠ Desktop PC #22 tidak bisa booting
+              </div>
+              <div class="notif-item info">📋 3 jadwal aktif minggu ini</div>
+              <div class="notif-item ok">✓ UPS #3 selesai diperbaiki</div>
             </div>
           </div>
-          <a onclick="showPage('profil')">Profil Saya</a>
-          <hr>
-          <a class="logout-link" onclick="doLogout()">Keluar</a>
-        </div>
-      </div>
-    </div>
-  </header>
 
-  <!-- ===========================
+          <!-- User -->
+          <div class="topbar-user" onclick="toggleUserMenu()">
+            <div class="t-avatar" id="topbarAvatar">BS</div>
+            <span class="t-name" id="topbarTeacher">Budi Santoso</span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              style="color: var(--text-dim)"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <div class="user-dropdown" id="userDropdown">
+              <div class="ud-header">
+                <div class="ud-avatar" id="udAvatar">BS</div>
+                <div>
+                  <div class="ud-name" id="udName">Budi Santoso</div>
+                  <div class="ud-email" id="udEmail">budi@labflow.id</div>
+                </div>
+              </div>
+              <a onclick="showPage('profil')">Profil Saya</a>
+              <hr />
+              <a class="logout-link" onclick="doLogout()">Keluar</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===========================
        PAGE: DASHBOARD
   =========================== -->
-  <div class="page-content" id="page-dashboard">
-    <div class="page-header">
-      <div>
-        <div class="page-title" id="dashTitle">Dashboard</div>
-        <div class="page-desc" id="dashDesc">Ringkasan kondisi laboratorium hari ini</div>
-      </div>
-    </div>
+      <div class="page-content" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="dashTitle">Dashboard</div>
+            <div class="page-desc" id="dashDesc">
+              Ringkasan kondisi laboratorium hari ini
+            </div>
+          </div>
+        </div>
 
-    <!-- Stat Cards -->
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          </svg>
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                />
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="statTotal">—</div>
+              <div class="stat-label">Total Unit Alat</div>
+            </div>
+            <span class="stat-trend" id="statTotalTrend">—</span>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="statBaik">—</div>
+              <div class="stat-label">Jenis Kondisi Baik</div>
+            </div>
+            <span class="stat-trend up" id="statBaikPct">—</span>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="statRusak">—</div>
+              <div class="stat-label">Laporan Aktif</div>
+            </div>
+            <span class="stat-trend down">Perlu tindakan</span>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="statJadwal">—</div>
+              <div class="stat-label">Total Jadwal</div>
+            </div>
+            <span class="stat-trend">Minggu ini</span>
+          </div>
         </div>
-        <div class="stat-body">
-          <div class="stat-value" id="statTotal">—</div>
-          <div class="stat-label">Total Unit Alat</div>
-        </div>
-        <span class="stat-trend" id="statTotalTrend">—</span>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
-        <div class="stat-body">
-          <div class="stat-value" id="statBaik">—</div>
-          <div class="stat-label">Jenis Kondisi Baik</div>
-        </div>
-        <span class="stat-trend up" id="statBaikPct">—</span>
-      </div>
-      <div class="stat-card orange">
-        <div class="stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-        </div>
-        <div class="stat-body">
-          <div class="stat-value" id="statRusak">—</div>
-          <div class="stat-label">Laporan Aktif</div>
-        </div>
-        <span class="stat-trend down">Perlu tindakan</span>
-      </div>
-      <div class="stat-card purple">
-        <div class="stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-        </div>
-        <div class="stat-body">
-          <div class="stat-value" id="statJadwal">—</div>
-          <div class="stat-label">Total Jadwal</div>
-        </div>
-        <span class="stat-trend">Minggu ini</span>
-      </div>
-    </div>
 
-    <!-- Condition Bar -->
-    <div class="condition-bar-wrap">
-      <div class="condition-bar-header">
-        <span>Kondisi Keseluruhan Alat</span>
-        <span id="condBarPct" style="color:var(--green);font-weight:600">—</span>
-      </div>
-      <div class="condition-bar">
-        <div class="cb-excellent" id="cbExcellent" style="width:0"></div>
-        <div class="cb-good"      id="cbGood"      style="width:0"></div>
-        <div class="cb-fair"      id="cbFair"      style="width:0"></div>
-        <div class="cb-poor"      id="cbPoor"      style="width:0"></div>
-      </div>
-      <div class="condition-legend">
-        <span><span class="dot excellent"></span>Sangat Baik</span>
-        <span><span class="dot good"></span>Baik</span>
-        <span><span class="dot fair"></span>Cukup</span>
-        <span><span class="dot poor"></span>Rusak</span>
-      </div>
-    </div>
-
-    <!-- Bottom Grid -->
-    <div class="dash-bottom">
-      <!-- Jadwal Hari Ini -->
-      <div class="card">
-        <div class="card-head">
-          <h3>Jadwal Hari Ini</h3>
-          <a class="card-link" onclick="showPage('jadwal')">Lihat semua →</a>
+        <!-- Condition Bar -->
+        <div class="condition-bar-wrap">
+          <div class="condition-bar-header">
+            <span>Kondisi Keseluruhan Alat</span>
+            <span id="condBarPct" style="color: var(--green); font-weight: 600"
+              >—</span
+            >
+          </div>
+          <div class="condition-bar">
+            <div class="cb-excellent" id="cbExcellent" style="width: 0"></div>
+            <div class="cb-good" id="cbGood" style="width: 0"></div>
+            <div class="cb-fair" id="cbFair" style="width: 0"></div>
+            <div class="cb-poor" id="cbPoor" style="width: 0"></div>
+          </div>
+          <div class="condition-legend">
+            <span><span class="dot excellent"></span>Sangat Baik</span>
+            <span><span class="dot good"></span>Baik</span>
+            <span><span class="dot fair"></span>Cukup</span>
+            <span><span class="dot poor"></span>Rusak</span>
+          </div>
         </div>
-        <div class="schedule-list" id="todaySchedule">
-          <div class="sched-empty">Memuat...</div>
+
+        <!-- Bottom Grid -->
+        <div class="dash-bottom">
+          <!-- Jadwal Hari Ini -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Jadwal Hari Ini</h3>
+              <a class="card-link" onclick="showPage('jadwal')"
+                >Lihat semua →</a
+              >
+            </div>
+            <div class="schedule-list" id="todaySchedule">
+              <div class="sched-empty">Memuat...</div>
+            </div>
+          </div>
+
+          <!-- Aktivitas Terbaru -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Aktivitas Terbaru</h3>
+            </div>
+            <div class="activity-list" id="activityFeed"></div>
+          </div>
+
+          <!-- Peringatan Kondisi -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Peringatan Kondisi</h3>
+              <a class="card-link" onclick="showPage('inventaris')"
+                >Inventaris →</a
+              >
+            </div>
+            <div class="alert-items" id="alertItems"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Aktivitas Terbaru -->
-      <div class="card">
-        <div class="card-head">
-          <h3>Aktivitas Terbaru</h3>
-        </div>
-        <div class="activity-list" id="activityFeed"></div>
-      </div>
-
-      <!-- Peringatan Kondisi -->
-      <div class="card">
-        <div class="card-head">
-          <h3>Peringatan Kondisi</h3>
-          <a class="card-link" onclick="showPage('inventaris')">Inventaris →</a>
-        </div>
-        <div class="alert-items" id="alertItems"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===========================
+      <!-- ===========================
        PAGE: JADWAL
   =========================== -->
-  <div class="page-content hidden" id="page-jadwal">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Jadwal Penggunaan Lab</div>
-        <div class="page-desc">Kelola jadwal praktikum dan penggunaan laboratorium</div>
-      </div>
-      <button class="btn-primary" onclick="openModal('addJadwalModal')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Tambah Jadwal
-      </button>
-    </div>
+      <div class="page-content hidden" id="page-jadwal">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Jadwal Penggunaan Lab</div>
+            <div class="page-desc">
+              Kelola jadwal praktikum dan penggunaan laboratorium
+            </div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addJadwalModal')">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Tambah Jadwal
+          </button>
+        </div>
 
-    <!-- Calendar -->
-    <div class="card" style="margin-bottom:16px;padding:16px">
-      <div class="week-nav">
-        <button class="week-btn" onclick="changeWeek(-1)">‹ Sebelumnya</button>
-        <span class="week-label" id="weekLabel">Minggu Ini</span>
-        <button class="week-btn" onclick="changeWeek(1)">Berikutnya ›</button>
-      </div>
-      <div class="calendar-grid" id="calendarGrid"></div>
-    </div>
+        <!-- Calendar -->
+        <div class="card" style="margin-bottom: 16px; padding: 16px">
+          <div class="week-nav">
+            <button class="week-btn" onclick="changeWeek(-1)">
+              ‹ Sebelumnya
+            </button>
+            <span class="week-label" id="weekLabel">Minggu Ini</span>
+            <button class="week-btn" onclick="changeWeek(1)">
+              Berikutnya ›
+            </button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
 
-    <!-- Table -->
-    <div class="card">
-      <div class="card-head">
-        <h3>Daftar Jadwal</h3>
-        <input class="search-sm" id="jadwalSearch" placeholder="Cari kelas / mata pelajaran..." oninput="filterJadwal()">
+        <!-- Table -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Daftar Jadwal</h3>
+            <input
+              class="search-sm"
+              id="jadwalSearch"
+              placeholder="Cari kelas / mata pelajaran..."
+              oninput="filterJadwal()"
+            />
+          </div>
+          <div style="overflow-x: auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>HARI</th>
+                  <th>WAKTU</th>
+                  <th>KELAS</th>
+                  <th>MATA PELAJARAN</th>
+                  <th>GURU</th>
+                  <th>STATUS</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="jadwalBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>HARI</th><th>WAKTU</th><th>KELAS</th><th>MATA PELAJARAN</th><th>GURU</th><th>STATUS</th><th>AKSI</th>
-            </tr>
-          </thead>
-          <tbody id="jadwalBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===========================
+      <!-- ===========================
        PAGE: INVENTARIS
   =========================== -->
-  <div class="page-content hidden" id="page-inventaris">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Inventaris Alat</div>
-        <div class="page-desc">Daftar lengkap peralatan dan kondisinya</div>
+      <div class="page-content hidden" id="page-inventaris">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Inventaris Alat</div>
+            <div class="page-desc">Daftar lengkap peralatan dan kondisinya</div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addItemModal')">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Tambah Alat
+          </button>
+        </div>
+
+        <div class="filter-bar">
+          <input
+            class="search-input"
+            id="invSearch"
+            placeholder="Cari nama atau kode alat..."
+            oninput="filterInventaris()"
+          />
+          <select id="invFilterCond" onchange="filterInventaris()">
+            <option value="">Semua Kondisi</option>
+            <option>Sangat Baik</option>
+            <option>Baik</option>
+            <option>Cukup</option>
+            <option>Rusak</option>
+          </select>
+          <select id="invFilterKat" onchange="filterInventaris()">
+            <option value="">Semua Kategori</option>
+            <option>Elektronik</option>
+            <option>Peralatan</option>
+            <option>Furnitur</option>
+            <option>Bahan</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div style="overflow-x: auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>KODE</th>
+                  <th>NAMA ALAT</th>
+                  <th>KATEGORI</th>
+                  <th>QTY</th>
+                  <th>KONDISI</th>
+                  <th>CEK TERAKHIR</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="invBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="invPagination"></div>
+        </div>
       </div>
-      <button class="btn-primary" onclick="openModal('addItemModal')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Tambah Alat
-      </button>
-    </div>
 
-    <div class="filter-bar">
-      <input class="search-input" id="invSearch" placeholder="Cari nama atau kode alat..." oninput="filterInventaris()">
-      <select id="invFilterCond" onchange="filterInventaris()">
-        <option value="">Semua Kondisi</option>
-        <option>Sangat Baik</option>
-        <option>Baik</option>
-        <option>Cukup</option>
-        <option>Rusak</option>
-      </select>
-      <select id="invFilterKat" onchange="filterInventaris()">
-        <option value="">Semua Kategori</option>
-        <option>Elektronik</option>
-        <option>Peralatan</option>
-        <option>Furnitur</option>
-        <option>Bahan</option>
-      </select>
-    </div>
-
-    <div class="card">
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>KODE</th><th>NAMA ALAT</th><th>KATEGORI</th><th>QTY</th><th>KONDISI</th><th>CEK TERAKHIR</th><th>AKSI</th>
-            </tr>
-          </thead>
-          <tbody id="invBody"></tbody>
-        </table>
-      </div>
-      <div class="pagination" id="invPagination"></div>
-    </div>
-  </div>
-
-  <!-- ===========================
+      <!-- ===========================
        PAGE: LAPORAN
   =========================== -->
-  <div class="page-content hidden" id="page-laporan">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Laporan Kerusakan</div>
-        <div class="page-desc">Ringkasan dan pemantauan kerusakan peralatan laboratorium</div>
-      </div>
-      <button class="btn-primary" onclick="openModal('addLaporanModal')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Laporkan Kerusakan
-      </button>
-    </div>
-
-    <!-- Status Cards -->
-    <div class="laporan-stats">
-      <div class="ls-card red" onclick="setLaporanFilter('Belum Ditangani')" style="cursor:pointer">
-        <div class="ls-icon">🔴</div>
-        <div class="ls-val" id="lsOpen">—</div>
-        <div class="ls-lbl">Belum Ditangani</div>
-        <div class="ls-sub">Perlu tindakan segera</div>
-      </div>
-      <div class="ls-card orange" onclick="setLaporanFilter('Sedang Diperbaiki')" style="cursor:pointer">
-        <div class="ls-icon">🔧</div>
-        <div class="ls-val" id="lsProcess">—</div>
-        <div class="ls-lbl">Sedang Diperbaiki</div>
-        <div class="ls-sub">Dalam proses perbaikan</div>
-      </div>
-      <div class="ls-card green" onclick="setLaporanFilter('Selesai')" style="cursor:pointer">
-        <div class="ls-icon">✅</div>
-        <div class="ls-val" id="lsDone">—</div>
-        <div class="ls-lbl">Selesai</div>
-        <div class="ls-sub">Berhasil diperbaiki</div>
-      </div>
-      <div class="ls-card blue" onclick="setLaporanFilter('')" style="cursor:pointer">
-        <div class="ls-icon">📋</div>
-        <div class="ls-val" id="lsTotal">—</div>
-        <div class="ls-lbl">Total Laporan</div>
-        <div class="ls-sub">Semua laporan tercatat</div>
-      </div>
-    </div>
-
-    <!-- Prioritas Bar + Timeline -->
-    <div class="laporan-mid-grid">
-      <!-- Prioritas Breakdown -->
-      <div class="card">
-        <div class="card-head"><h3>Breakdown Prioritas</h3></div>
-        <div class="prio-breakdown" id="prioBreakdown"></div>
-      </div>
-      <!-- Laporan Kritis -->
-      <div class="card">
-        <div class="card-head">
-          <h3>⚠ Perlu Perhatian Segera</h3>
-          <span class="badge danger" id="kritisCount">0</span>
+      <div class="page-content hidden" id="page-laporan">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Laporan Kerusakan</div>
+            <div class="page-desc">
+              Ringkasan dan pemantauan kerusakan peralatan laboratorium
+            </div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addLaporanModal')">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Laporkan Kerusakan
+          </button>
         </div>
-        <div class="kritis-list" id="kritisList"></div>
-      </div>
-    </div>
 
-    <!-- Tabel Laporan -->
-    <div class="card">
-      <div class="card-head">
-        <h3>Semua Laporan</h3>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input class="search-sm" id="laporanSearch" placeholder="Cari nama alat..." oninput="filterLaporan()">
-          <select id="laporanFilter" onchange="filterLaporan()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px">
-            <option value="">Semua Status</option>
-            <option>Belum Ditangani</option>
-            <option>Sedang Diperbaiki</option>
-            <option>Selesai</option>
-          </select>
-          <select id="laporanFilterPrio" onchange="filterLaporan()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px">
-            <option value="">Semua Prioritas</option>
-            <option>Rendah</option>
-            <option>Sedang</option>
-            <option>Tinggi</option>
-            <option>Kritis</option>
-          </select>
+        <!-- Status Cards -->
+        <div class="laporan-stats">
+          <div
+            class="ls-card red"
+            onclick="setLaporanFilter('Belum Ditangani')"
+            style="cursor: pointer"
+          >
+            <div class="ls-icon">🔴</div>
+            <div class="ls-val" id="lsOpen">—</div>
+            <div class="ls-lbl">Belum Ditangani</div>
+            <div class="ls-sub">Perlu tindakan segera</div>
+          </div>
+          <div
+            class="ls-card orange"
+            onclick="setLaporanFilter('Sedang Diperbaiki')"
+            style="cursor: pointer"
+          >
+            <div class="ls-icon">🔧</div>
+            <div class="ls-val" id="lsProcess">—</div>
+            <div class="ls-lbl">Sedang Diperbaiki</div>
+            <div class="ls-sub">Dalam proses perbaikan</div>
+          </div>
+          <div
+            class="ls-card green"
+            onclick="setLaporanFilter('Selesai')"
+            style="cursor: pointer"
+          >
+            <div class="ls-icon">✅</div>
+            <div class="ls-val" id="lsDone">—</div>
+            <div class="ls-lbl">Selesai</div>
+            <div class="ls-sub">Berhasil diperbaiki</div>
+          </div>
+          <div
+            class="ls-card blue"
+            onclick="setLaporanFilter('')"
+            style="cursor: pointer"
+          >
+            <div class="ls-icon">📋</div>
+            <div class="ls-val" id="lsTotal">—</div>
+            <div class="ls-lbl">Total Laporan</div>
+            <div class="ls-sub">Semua laporan tercatat</div>
+          </div>
+        </div>
+
+        <!-- Prioritas Bar + Timeline -->
+        <div class="laporan-mid-grid">
+          <!-- Prioritas Breakdown -->
+          <div class="card">
+            <div class="card-head"><h3>Breakdown Prioritas</h3></div>
+            <div class="prio-breakdown" id="prioBreakdown"></div>
+          </div>
+          <!-- Laporan Kritis -->
+          <div class="card">
+            <div class="card-head">
+              <h3>⚠ Perlu Perhatian Segera</h3>
+              <span class="badge danger" id="kritisCount">0</span>
+            </div>
+            <div class="kritis-list" id="kritisList"></div>
+          </div>
+        </div>
+
+        <!-- Tabel Laporan -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Semua Laporan</h3>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <input
+                class="search-sm"
+                id="laporanSearch"
+                placeholder="Cari nama alat..."
+                oninput="filterLaporan()"
+              />
+              <select
+                id="laporanFilter"
+                onchange="filterLaporan()"
+                style="
+                  padding: 6px 10px;
+                  background: var(--bg3);
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  color: var(--text-muted);
+                  font-size: 12px;
+                "
+              >
+                <option value="">Semua Status</option>
+                <option>Belum Ditangani</option>
+                <option>Sedang Diperbaiki</option>
+                <option>Selesai</option>
+              </select>
+              <select
+                id="laporanFilterPrio"
+                onchange="filterLaporan()"
+                style="
+                  padding: 6px 10px;
+                  background: var(--bg3);
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  color: var(--text-muted);
+                  font-size: 12px;
+                "
+              >
+                <option value="">Semua Prioritas</option>
+                <option>Rendah</option>
+                <option>Sedang</option>
+                <option>Tinggi</option>
+                <option>Kritis</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x: auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>NAMA ALAT</th>
+                  <th>DESKRIPSI</th>
+                  <th>TANGGAL</th>
+                  <th>PRIORITAS</th>
+                  <th>PROGRESS & STATUS</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="laporanBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>NAMA ALAT</th><th>DESKRIPSI</th><th>TANGGAL</th><th>PRIORITAS</th><th>PROGRESS & STATUS</th><th>AKSI</th>
-            </tr>
-          </thead>
-          <tbody id="laporanBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===========================
+      <!-- ===========================
        PAGE: PEMINJAMAN
   =========================== -->
-  <div class="page-content hidden" id="page-peminjaman">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Peminjaman Alat</div>
-        <div class="page-desc">Catat dan pantau peminjaman peralatan laboratorium</div>
-      </div>
-      <button class="btn-primary" onclick="openModal('addPinjamModal')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Catat Peminjaman
-      </button>
-    </div>
+      <div class="page-content hidden" id="page-peminjaman">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Peminjaman Alat</div>
+            <div class="page-desc">
+              Catat dan pantau peminjaman peralatan laboratorium
+            </div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addPinjamModal')">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Catat Peminjaman
+          </button>
+        </div>
 
-    <div class="pinjam-stats">
-      <div class="ps-card blue">
-        <div class="ps-val" id="psDipinjam">—</div>
-        <div class="ps-lbl">Sedang Dipinjam</div>
-      </div>
-      <div class="ps-card green">
-        <div class="ps-val" id="psDikembalikan">—</div>
-        <div class="ps-lbl">Dikembalikan</div>
-      </div>
-      <div class="ps-card red">
-        <div class="ps-val" id="psTerlambat">—</div>
-        <div class="ps-lbl">Terlambat</div>
-      </div>
-    </div>
+        <div class="pinjam-stats">
+          <div class="ps-card blue">
+            <div class="ps-val" id="psDipinjam">—</div>
+            <div class="ps-lbl">Sedang Dipinjam</div>
+          </div>
+          <div class="ps-card green">
+            <div class="ps-val" id="psDikembalikan">—</div>
+            <div class="ps-lbl">Dikembalikan</div>
+          </div>
+          <div class="ps-card red">
+            <div class="ps-val" id="psTerlambat">—</div>
+            <div class="ps-lbl">Terlambat</div>
+          </div>
+        </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h3>Daftar Peminjaman</h3>
-        <input class="search-sm" id="pinjamSearch" placeholder="Cari nama / alat..." oninput="filterPinjam()">
+        <div class="card">
+          <div class="card-head">
+            <h3>Daftar Peminjaman</h3>
+            <input
+              class="search-sm"
+              id="pinjamSearch"
+              placeholder="Cari nama / alat..."
+              oninput="filterPinjam()"
+            />
+          </div>
+          <div style="overflow-x: auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>PEMINJAM</th>
+                  <th>ALAT</th>
+                  <th>QTY</th>
+                  <th>TGL PINJAM</th>
+                  <th>TGL KEMBALI</th>
+                  <th>STATUS</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="pinjamBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>PEMINJAM</th><th>ALAT</th><th>QTY</th><th>TGL PINJAM</th><th>TGL KEMBALI</th><th>STATUS</th><th>AKSI</th>
-            </tr>
-          </thead>
-          <tbody id="pinjamBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===========================
+      <!-- ===========================
        PAGE: PROFIL
   =========================== -->
-  <div class="page-content hidden" id="page-profil">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Profil Saya</div>
-        <div class="page-desc">Informasi akun dan statistik pengelolaan lab</div>
+      <div class="page-content hidden" id="page-profil">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Profil Saya</div>
+            <div class="page-desc">
+              Informasi akun dan statistik pengelolaan lab
+            </div>
+          </div>
+        </div>
+
+        <div class="profil-grid">
+          <!-- Left card -->
+          <div class="card profil-card">
+            <div class="profil-avatar" id="profilAvatar">BS</div>
+            <div class="profil-name" id="profilName">Budi Santoso</div>
+            <div class="profil-role">Pengelola Laboratorium</div>
+            <div class="profil-lab-badge" id="profilLabBadge">Computer Lab</div>
+            <div class="profil-info">
+              <div class="pi-row">
+                <span>Email</span>
+                <span id="profilEmail">budi@labflow.id</span>
+              </div>
+              <div class="pi-row">
+                <span>Laboratorium</span>
+                <span id="profilLab">Computer Lab</span>
+              </div>
+              <div class="pi-row">
+                <span>Login Terakhir</span>
+                <span id="profilLastLogin">—</span>
+              </div>
+              <div class="pi-row">
+                <span>Status</span>
+                <span class="badge-ok">Aktif</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right stats -->
+          <div>
+            <div class="card" style="margin-bottom: 14px">
+              <div class="card-head"><h3>Statistik Pengelolaan</h3></div>
+              <div class="profil-stats">
+                <div class="pstat">
+                  <div class="pstat-val" id="pstatItem">—</div>
+                  <div class="pstat-lbl">Jenis Alat Dikelola</div>
+                </div>
+                <div class="pstat">
+                  <div class="pstat-val" id="pstatLaporan">—</div>
+                  <div class="pstat-lbl">Total Laporan</div>
+                </div>
+                <div class="pstat">
+                  <div class="pstat-val" id="pstatJadwal">—</div>
+                  <div class="pstat-lbl">Jadwal Terdaftar</div>
+                </div>
+                <div class="pstat">
+                  <div class="pstat-val" id="pstatPinjam">—</div>
+                  <div class="pstat-lbl">Catatan Peminjaman</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding: 16px">
+              <div
+                style="
+                  font-size: 12px;
+                  font-weight: 600;
+                  color: var(--text);
+                  margin-bottom: 12px;
+                "
+              >
+                Kredensial Login
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  line-height: 2;
+                "
+              >
+                Untuk keamanan, ubah kata sandi secara berkala.<br />
+                Jangan bagikan kredensial kepada pihak lain.
+              </div>
+              <button
+                class="btn-primary"
+                style="margin-top: 12px; width: 100%; justify-content: center"
+                onclick="alert('Fitur ubah kata sandi akan segera tersedia.')"
+              >
+                Ubah Kata Sandi
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+    <!-- end main-wrapper -->
 
-    <div class="profil-grid">
-      <!-- Left card -->
-      <div class="card profil-card">
-        <div class="profil-avatar" id="profilAvatar">BS</div>
-        <div class="profil-name" id="profilName">Budi Santoso</div>
-        <div class="profil-role">Pengelola Laboratorium</div>
-        <div class="profil-lab-badge" id="profilLabBadge">Computer Lab</div>
-        <div class="profil-info">
-          <div class="pi-row">
-            <span>Email</span>
-            <span id="profilEmail">budi@labflow.id</span>
+    <!-- ===========================
+     MODALS
+=========================== -->
+
+    <!-- =============================================
+     MODAL: TAMBAH ALAT — UI CARD BARU
+============================================= -->
+    <div
+      class="modal-overlay"
+      id="addItemModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #6366f1, #8b5cf6)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+              />
+            </svg>
           </div>
-          <div class="pi-row">
-            <span>Laboratorium</span>
-            <span id="profilLab">Computer Lab</span>
+          <div>
+            <h3>Tambah Alat Baru</h3>
+            <p class="modal-subtitle">
+              Isi data alat yang akan ditambahkan ke inventaris
+            </p>
           </div>
-          <div class="pi-row">
-            <span>Login Terakhir</span>
-            <span id="profilLastLogin">—</span>
-          </div>
-          <div class="pi-row">
-            <span>Status</span>
-            <span class="badge-ok">Aktif</span>
+          <button class="modal-close" onclick="closeModal('addItemModal')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-card-grid">
+            <!-- Kiri: Upload Foto -->
+            <div class="form-photo-col">
+              <div
+                class="photo-upload-box"
+                id="addItemPhotoBox"
+                onclick="document.getElementById('addItemPhoto').click()"
+              >
+                <img
+                  id="addItemPhotoPreview"
+                  src=""
+                  alt=""
+                  style="display: none"
+                />
+                <div
+                  class="photo-upload-placeholder"
+                  id="addItemPhotoPlaceholder"
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  <span>Klik untuk upload foto</span>
+                  <small>JPG, PNG, WEBP (maks 5MB)</small>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="addItemPhoto"
+                accept="image/*"
+                style="display: none"
+                onchange="
+                  previewPhoto(
+                    'addItemPhoto',
+                    'addItemPhotoPreview',
+                    'addItemPhotoPlaceholder',
+                  )
+                "
+              />
+              <button
+                class="btn-remove-photo"
+                id="addItemRemovePhoto"
+                style="display: none"
+                onclick="
+                  removePhoto(
+                    'addItemPhoto',
+                    'addItemPhotoPreview',
+                    'addItemPhotoPlaceholder',
+                    'addItemRemovePhoto',
+                  )
+                "
+              >
+                ✕ Hapus Foto
+              </button>
+            </div>
+            <!-- Kanan: Form -->
+            <div class="form-fields-col">
+              <div class="form-section-title">Informasi Alat</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>NAMA ALAT <span class="req">*</span></label>
+                  <input
+                    id="addItemName"
+                    placeholder="Contoh: Proyektor Epson"
+                  />
+                </div>
+                <div class="form-group" style="max-width: 130px">
+                  <label>KODE ALAT</label>
+                  <input id="addItemCode" placeholder="Auto" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>KATEGORI</label>
+                  <select id="addItemKat">
+                    <option>Elektronik</option>
+                    <option>Peralatan</option>
+                    <option>Furnitur</option>
+                    <option>Bahan</option>
+                  </select>
+                </div>
+                <div class="form-group" style="max-width: 100px">
+                  <label>JUMLAH</label>
+                  <input id="addItemQty" type="number" min="0" value="1" />
+                </div>
+              </div>
+              <div class="form-section-title" style="margin-top: 12px">
+                Kondisi & Catatan
+              </div>
+              <div class="cond-picker" id="addItemCondPicker">
+                <label class="cond-opt" data-val="Sangat Baik">
+                  <input type="radio" name="addItemCondR" value="Sangat Baik" />
+                  <span class="cond-chip excellent">Sangat Baik</span>
+                </label>
+                <label class="cond-opt" data-val="Baik">
+                  <input
+                    type="radio"
+                    name="addItemCondR"
+                    value="Baik"
+                    checked
+                  />
+                  <span class="cond-chip good">Baik</span>
+                </label>
+                <label class="cond-opt" data-val="Cukup">
+                  <input type="radio" name="addItemCondR" value="Cukup" />
+                  <span class="cond-chip fair">Cukup</span>
+                </label>
+                <label class="cond-opt" data-val="Rusak">
+                  <input type="radio" name="addItemCondR" value="Rusak" />
+                  <span class="cond-chip poor">Rusak</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-top: 12px">
+                <label>CATATAN</label>
+                <textarea
+                  id="addItemNote"
+                  rows="2"
+                  placeholder="Keterangan tambahan (opsional)"
+                ></textarea>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Right stats -->
-      <div>
-        <div class="card" style="margin-bottom:14px">
-          <div class="card-head"><h3>Statistik Pengelolaan</h3></div>
-          <div class="profil-stats">
-            <div class="pstat">
-              <div class="pstat-val" id="pstatItem">—</div>
-              <div class="pstat-lbl">Jenis Alat Dikelola</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-val" id="pstatLaporan">—</div>
-              <div class="pstat-lbl">Total Laporan</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-val" id="pstatJadwal">—</div>
-              <div class="pstat-lbl">Jadwal Terdaftar</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-val" id="pstatPinjam">—</div>
-              <div class="pstat-lbl">Catatan Peminjaman</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:16px">
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:12px">Kredensial Login</div>
-          <div style="font-size:12px;color:var(--text-muted);line-height:2">
-            Untuk keamanan, ubah kata sandi secara berkala.<br>
-            Jangan bagikan kredensial kepada pihak lain.
-          </div>
-          <button class="btn-primary" style="margin-top:12px;width:100%;justify-content:center" onclick="alert('Fitur ubah kata sandi akan segera tersedia.')">
-            Ubah Kata Sandi
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('addItemModal')">
+            Batal
+          </button>
+          <button class="btn-save" onclick="addItem()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Simpan Alat
           </button>
         </div>
       </div>
     </div>
-  </div>
 
-</div><!-- end main-wrapper -->
-
-<!-- ===========================
-     MODALS
-=========================== -->
-
-<!-- =============================================
-     MODAL: TAMBAH ALAT — UI CARD BARU
-============================================= -->
-<div class="modal-overlay" id="addItemModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-        </svg>
-      </div>
-      <div>
-        <h3>Tambah Alat Baru</h3>
-        <p class="modal-subtitle">Isi data alat yang akan ditambahkan ke inventaris</p>
-      </div>
-      <button class="modal-close" onclick="closeModal('addItemModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-card-grid">
-        <!-- Kiri: Upload Foto -->
-        <div class="form-photo-col">
-          <div class="photo-upload-box" id="addItemPhotoBox" onclick="document.getElementById('addItemPhoto').click()">
-            <img id="addItemPhotoPreview" src="" alt="" style="display:none">
-            <div class="photo-upload-placeholder" id="addItemPhotoPlaceholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
-              <span>Klik untuk upload foto</span>
-              <small>JPG, PNG, WEBP (maks 5MB)</small>
-            </div>
-          </div>
-          <input type="file" id="addItemPhoto" accept="image/*" style="display:none" onchange="previewPhoto('addItemPhoto','addItemPhotoPreview','addItemPhotoPlaceholder')">
-          <button class="btn-remove-photo" id="addItemRemovePhoto" style="display:none" onclick="removePhoto('addItemPhoto','addItemPhotoPreview','addItemPhotoPlaceholder','addItemRemovePhoto')">✕ Hapus Foto</button>
-        </div>
-        <!-- Kanan: Form -->
-        <div class="form-fields-col">
-          <div class="form-section-title">Informasi Alat</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>NAMA ALAT <span class="req">*</span></label>
-              <input id="addItemName" placeholder="Contoh: Proyektor Epson">
-            </div>
-            <div class="form-group" style="max-width:130px">
-              <label>KODE ALAT</label>
-              <input id="addItemCode" placeholder="Auto">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>KATEGORI</label>
-              <select id="addItemKat">
-                <option>Elektronik</option>
-                <option>Peralatan</option>
-                <option>Furnitur</option>
-                <option>Bahan</option>
-              </select>
-            </div>
-            <div class="form-group" style="max-width:100px">
-              <label>JUMLAH</label>
-              <input id="addItemQty" type="number" min="0" value="1">
-            </div>
-          </div>
-          <div class="form-section-title" style="margin-top:12px">Kondisi & Catatan</div>
-          <div class="cond-picker" id="addItemCondPicker">
-            <label class="cond-opt" data-val="Sangat Baik">
-              <input type="radio" name="addItemCondR" value="Sangat Baik">
-              <span class="cond-chip excellent">Sangat Baik</span>
-            </label>
-            <label class="cond-opt" data-val="Baik">
-              <input type="radio" name="addItemCondR" value="Baik" checked>
-              <span class="cond-chip good">Baik</span>
-            </label>
-            <label class="cond-opt" data-val="Cukup">
-              <input type="radio" name="addItemCondR" value="Cukup">
-              <span class="cond-chip fair">Cukup</span>
-            </label>
-            <label class="cond-opt" data-val="Rusak">
-              <input type="radio" name="addItemCondR" value="Rusak">
-              <span class="cond-chip poor">Rusak</span>
-            </label>
-          </div>
-          <div class="form-group" style="margin-top:12px">
-            <label>CATATAN</label>
-            <textarea id="addItemNote" rows="2" placeholder="Keterangan tambahan (opsional)"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('addItemModal')">Batal</button>
-      <button class="btn-save" onclick="addItem()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Simpan Alat
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- =============================================
+    <!-- =============================================
      MODAL: EDIT ALAT
 ============================================= -->
-<div class="modal-overlay" id="editItemModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-      </div>
-      <div>
-        <h3>Edit Data Alat</h3>
-        <p class="modal-subtitle">Perbarui informasi alat yang sudah ada</p>
-      </div>
-      <button class="modal-close" onclick="closeModal('editItemModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editItemIdx">
-      <div class="form-card-grid">
-        <div class="form-photo-col">
-          <div class="photo-upload-box" id="editItemPhotoBox" onclick="document.getElementById('editItemPhoto').click()">
-            <img id="editItemPhotoPreview" src="" alt="" style="display:none">
-            <div class="photo-upload-placeholder" id="editItemPhotoPlaceholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
-              <span>Klik untuk upload foto</span>
-              <small>JPG, PNG, WEBP (maks 5MB)</small>
-            </div>
+    <div
+      class="modal-overlay"
+      id="editItemModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #0ea5e9, #6366f1)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
           </div>
-          <input type="file" id="editItemPhoto" accept="image/*" style="display:none" onchange="previewPhoto('editItemPhoto','editItemPhotoPreview','editItemPhotoPlaceholder')">
-          <button class="btn-remove-photo" id="editItemRemovePhoto" style="display:none" onclick="removePhoto('editItemPhoto','editItemPhotoPreview','editItemPhotoPlaceholder','editItemRemovePhoto')">✕ Hapus Foto</button>
+          <div>
+            <h3>Edit Data Alat</h3>
+            <p class="modal-subtitle">Perbarui informasi alat yang sudah ada</p>
+          </div>
+          <button class="modal-close" onclick="closeModal('editItemModal')">
+            ✕
+          </button>
         </div>
-        <div class="form-fields-col">
-          <div class="form-section-title">Informasi Alat</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>NAMA ALAT <span class="req">*</span></label>
-              <input id="editItemName">
+        <div class="modal-body">
+          <input type="hidden" id="editItemIdx" />
+          <div class="form-card-grid">
+            <div class="form-photo-col">
+              <div
+                class="photo-upload-box"
+                id="editItemPhotoBox"
+                onclick="document.getElementById('editItemPhoto').click()"
+              >
+                <img
+                  id="editItemPhotoPreview"
+                  src=""
+                  alt=""
+                  style="display: none"
+                />
+                <div
+                  class="photo-upload-placeholder"
+                  id="editItemPhotoPlaceholder"
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  <span>Klik untuk upload foto</span>
+                  <small>JPG, PNG, WEBP (maks 5MB)</small>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="editItemPhoto"
+                accept="image/*"
+                style="display: none"
+                onchange="
+                  previewPhoto(
+                    'editItemPhoto',
+                    'editItemPhotoPreview',
+                    'editItemPhotoPlaceholder',
+                  )
+                "
+              />
+              <button
+                class="btn-remove-photo"
+                id="editItemRemovePhoto"
+                style="display: none"
+                onclick="
+                  removePhoto(
+                    'editItemPhoto',
+                    'editItemPhotoPreview',
+                    'editItemPhotoPlaceholder',
+                    'editItemRemovePhoto',
+                  )
+                "
+              >
+                ✕ Hapus Foto
+              </button>
             </div>
-            <div class="form-group" style="max-width:130px">
-              <label>KODE ALAT</label>
-              <input id="editItemCode">
+            <div class="form-fields-col">
+              <div class="form-section-title">Informasi Alat</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>NAMA ALAT <span class="req">*</span></label>
+                  <input id="editItemName" />
+                </div>
+                <div class="form-group" style="max-width: 130px">
+                  <label>KODE ALAT</label>
+                  <input id="editItemCode" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>KATEGORI</label>
+                  <select id="editItemKat">
+                    <option>Elektronik</option>
+                    <option>Peralatan</option>
+                    <option>Furnitur</option>
+                    <option>Bahan</option>
+                  </select>
+                </div>
+                <div class="form-group" style="max-width: 100px">
+                  <label>JUMLAH</label>
+                  <input id="editItemQty" type="number" min="0" />
+                </div>
+              </div>
+              <div class="form-section-title" style="margin-top: 12px">
+                Kondisi & Catatan
+              </div>
+              <div class="cond-picker" id="editItemCondPicker">
+                <label class="cond-opt" data-val="Sangat Baik">
+                  <input
+                    type="radio"
+                    name="editItemCondR"
+                    value="Sangat Baik"
+                  />
+                  <span class="cond-chip excellent">Sangat Baik</span>
+                </label>
+                <label class="cond-opt" data-val="Baik">
+                  <input type="radio" name="editItemCondR" value="Baik" />
+                  <span class="cond-chip good">Baik</span>
+                </label>
+                <label class="cond-opt" data-val="Cukup">
+                  <input type="radio" name="editItemCondR" value="Cukup" />
+                  <span class="cond-chip fair">Cukup</span>
+                </label>
+                <label class="cond-opt" data-val="Rusak">
+                  <input type="radio" name="editItemCondR" value="Rusak" />
+                  <span class="cond-chip poor">Rusak</span>
+                </label>
+              </div>
+              <div class="form-group" style="margin-top: 12px">
+                <label>CATATAN</label>
+                <textarea id="editItemNote" rows="2"></textarea>
+              </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>KATEGORI</label>
-              <select id="editItemKat">
-                <option>Elektronik</option>
-                <option>Peralatan</option>
-                <option>Furnitur</option>
-                <option>Bahan</option>
-              </select>
-            </div>
-            <div class="form-group" style="max-width:100px">
-              <label>JUMLAH</label>
-              <input id="editItemQty" type="number" min="0">
-            </div>
-          </div>
-          <div class="form-section-title" style="margin-top:12px">Kondisi & Catatan</div>
-          <div class="cond-picker" id="editItemCondPicker">
-            <label class="cond-opt" data-val="Sangat Baik">
-              <input type="radio" name="editItemCondR" value="Sangat Baik">
-              <span class="cond-chip excellent">Sangat Baik</span>
-            </label>
-            <label class="cond-opt" data-val="Baik">
-              <input type="radio" name="editItemCondR" value="Baik">
-              <span class="cond-chip good">Baik</span>
-            </label>
-            <label class="cond-opt" data-val="Cukup">
-              <input type="radio" name="editItemCondR" value="Cukup">
-              <span class="cond-chip fair">Cukup</span>
-            </label>
-            <label class="cond-opt" data-val="Rusak">
-              <input type="radio" name="editItemCondR" value="Rusak">
-              <span class="cond-chip poor">Rusak</span>
-            </label>
-          </div>
-          <div class="form-group" style="margin-top:12px">
-            <label>CATATAN</label>
-            <textarea id="editItemNote" rows="2"></textarea>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('editItemModal')">
+            Batal
+          </button>
+          <button class="btn-save" onclick="saveEditItem()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Simpan Perubahan
+          </button>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('editItemModal')">Batal</button>
-      <button class="btn-save" onclick="saveEditItem()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Simpan Perubahan
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- =============================================
+    <!-- =============================================
      MODAL: TAMBAH JADWAL
 ============================================= -->
-<div class="modal-overlay" id="addJadwalModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#10b981,#0ea5e9)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
+    <div
+      class="modal-overlay"
+      id="addJadwalModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #10b981, #0ea5e9)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <div>
+            <h3>Tambah Jadwal Baru</h3>
+            <p class="modal-subtitle">Atur jadwal penggunaan laboratorium</p>
+          </div>
+          <button class="modal-close" onclick="closeModal('addJadwalModal')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Hari Picker -->
+          <div class="form-section-title">Pilih Hari</div>
+          <div class="day-picker" id="dayPicker">
+            <label class="day-opt"
+              ><input
+                type="radio"
+                name="jadwalHariR"
+                value="Senin"
+                checked
+              /><span>Sen</span></label
+            >
+            <label class="day-opt"
+              ><input type="radio" name="jadwalHariR" value="Selasa" /><span
+                >Sel</span
+              ></label
+            >
+            <label class="day-opt"
+              ><input type="radio" name="jadwalHariR" value="Rabu" /><span
+                >Rab</span
+              ></label
+            >
+            <label class="day-opt"
+              ><input type="radio" name="jadwalHariR" value="Kamis" /><span
+                >Kam</span
+              ></label
+            >
+            <label class="day-opt"
+              ><input type="radio" name="jadwalHariR" value="Jumat" /><span
+                >Jum</span
+              ></label
+            >
+            <label class="day-opt"
+              ><input type="radio" name="jadwalHariR" value="Sabtu" /><span
+                >Sab</span
+              ></label
+            >
+          </div>
+          <!-- Waktu -->
+          <div class="form-section-title" style="margin-top: 16px">
+            Waktu Penggunaan
+          </div>
+          <div class="time-range-row">
+            <div class="form-group">
+              <label>MULAI</label>
+              <input id="addJadwalMulai" type="time" value="07:30" />
+            </div>
+            <div class="time-sep">—</div>
+            <div class="form-group">
+              <label>SELESAI</label>
+              <input id="addJadwalSelesai" type="time" value="09:30" />
+            </div>
+          </div>
+          <!-- Kelas & Mapel -->
+          <div class="form-section-title" style="margin-top: 16px">
+            Detail Kelas
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>KELAS <span class="req">*</span></label>
+              <input id="addJadwalKelas" placeholder="Contoh: XI RPL 1" />
+            </div>
+            <div class="form-group">
+              <label>MATA PELAJARAN <span class="req">*</span></label>
+              <input
+                id="addJadwalMapel"
+                placeholder="Contoh: Pemrograman Dasar"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>TOPIK / CATATAN</label>
+            <input id="addJadwalNote" placeholder="Contoh: Praktikum Python" />
+          </div>
+          <!-- Upload Modul/Dokumen -->
+          <div class="form-section-title" style="margin-top: 16px">
+            Foto / Dokumen (Opsional)
+          </div>
+          <div
+            class="photo-upload-box photo-upload-wide"
+            id="addJadwalPhotoBox"
+            onclick="document.getElementById('addJadwalPhoto').click()"
+          >
+            <img
+              id="addJadwalPhotoPreview"
+              src=""
+              alt=""
+              style="display: none; max-height: 120px; border-radius: 8px"
+            />
+            <div
+              class="photo-upload-placeholder"
+              id="addJadwalPhotoPlaceholder"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span>Upload foto jadwal / modul</span>
+              <small>JPG, PNG (maks 5MB)</small>
+            </div>
+          </div>
+          <input
+            type="file"
+            id="addJadwalPhoto"
+            accept="image/*"
+            style="display: none"
+            onchange="
+              previewPhoto(
+                'addJadwalPhoto',
+                'addJadwalPhotoPreview',
+                'addJadwalPhotoPlaceholder',
+              )
+            "
+          />
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('addJadwalModal')">
+            Batal
+          </button>
+          <button class="btn-save" onclick="addJadwal()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Simpan Jadwal
+          </button>
+        </div>
       </div>
-      <div>
-        <h3>Tambah Jadwal Baru</h3>
-        <p class="modal-subtitle">Atur jadwal penggunaan laboratorium</p>
-      </div>
-      <button class="modal-close" onclick="closeModal('addJadwalModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <!-- Hari Picker -->
-      <div class="form-section-title">Pilih Hari</div>
-      <div class="day-picker" id="dayPicker">
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Senin" checked><span>Sen</span></label>
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Selasa"><span>Sel</span></label>
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Rabu"><span>Rab</span></label>
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Kamis"><span>Kam</span></label>
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Jumat"><span>Jum</span></label>
-        <label class="day-opt"><input type="radio" name="jadwalHariR" value="Sabtu"><span>Sab</span></label>
-      </div>
-      <!-- Waktu -->
-      <div class="form-section-title" style="margin-top:16px">Waktu Penggunaan</div>
-      <div class="time-range-row">
-        <div class="form-group">
-          <label>MULAI</label>
-          <input id="addJadwalMulai" type="time" value="07:30">
-        </div>
-        <div class="time-sep">—</div>
-        <div class="form-group">
-          <label>SELESAI</label>
-          <input id="addJadwalSelesai" type="time" value="09:30">
-        </div>
-      </div>
-      <!-- Kelas & Mapel -->
-      <div class="form-section-title" style="margin-top:16px">Detail Kelas</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>KELAS <span class="req">*</span></label>
-          <input id="addJadwalKelas" placeholder="Contoh: XI RPL 1">
-        </div>
-        <div class="form-group">
-          <label>MATA PELAJARAN <span class="req">*</span></label>
-          <input id="addJadwalMapel" placeholder="Contoh: Pemrograman Dasar">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>TOPIK / CATATAN</label>
-        <input id="addJadwalNote" placeholder="Contoh: Praktikum Python">
-      </div>
-      <!-- Upload Modul/Dokumen -->
-      <div class="form-section-title" style="margin-top:16px">Foto / Dokumen (Opsional)</div>
-      <div class="photo-upload-box photo-upload-wide" id="addJadwalPhotoBox" onclick="document.getElementById('addJadwalPhoto').click()">
-        <img id="addJadwalPhotoPreview" src="" alt="" style="display:none;max-height:120px;border-radius:8px">
-        <div class="photo-upload-placeholder" id="addJadwalPhotoPlaceholder">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          <span>Upload foto jadwal / modul</span>
-          <small>JPG, PNG (maks 5MB)</small>
-        </div>
-      </div>
-      <input type="file" id="addJadwalPhoto" accept="image/*" style="display:none" onchange="previewPhoto('addJadwalPhoto','addJadwalPhotoPreview','addJadwalPhotoPlaceholder')">
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('addJadwalModal')">Batal</button>
-      <button class="btn-save" onclick="addJadwal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Simpan Jadwal
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- =============================================
+    <!-- =============================================
      MODAL: LAPORAN KERUSAKAN
 ============================================= -->
-<div class="modal-overlay" id="addLaporanModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </div>
-      <div>
-        <h3>Laporkan Kerusakan</h3>
-        <p class="modal-subtitle">Dokumentasikan kerusakan alat dengan foto bukti</p>
-      </div>
-      <button class="modal-close" onclick="closeModal('addLaporanModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-card-grid">
-        <!-- Foto Kerusakan -->
-        <div class="form-photo-col">
-          <div class="form-section-title">Foto Kerusakan</div>
-          <div class="photo-upload-box photo-damage" id="addLapPhotoBox" onclick="document.getElementById('addLapPhoto').click()">
-            <img id="addLapPhotoPreview" src="" alt="" style="display:none">
-            <div class="photo-upload-placeholder" id="addLapPhotoPlaceholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-              <span>Upload foto kerusakan</span>
-              <small>Foto bukti kerusakan alat</small>
+    <div
+      class="modal-overlay"
+      id="addLaporanModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #ef4444, #f97316)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <div>
+            <h3>Laporkan Kerusakan</h3>
+            <p class="modal-subtitle">
+              Dokumentasikan kerusakan alat dengan foto bukti
+            </p>
+          </div>
+          <button class="modal-close" onclick="closeModal('addLaporanModal')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-card-grid">
+            <!-- Foto Kerusakan -->
+            <div class="form-photo-col">
+              <div class="form-section-title">Foto Kerusakan</div>
+              <div
+                class="photo-upload-box photo-damage"
+                id="addLapPhotoBox"
+                onclick="document.getElementById('addLapPhoto').click()"
+              >
+                <img
+                  id="addLapPhotoPreview"
+                  src=""
+                  alt=""
+                  style="display: none"
+                />
+                <div
+                  class="photo-upload-placeholder"
+                  id="addLapPhotoPlaceholder"
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                    />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  <span>Upload foto kerusakan</span>
+                  <small>Foto bukti kerusakan alat</small>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="addLapPhoto"
+                accept="image/*"
+                style="display: none"
+                onchange="
+                  previewPhoto(
+                    'addLapPhoto',
+                    'addLapPhotoPreview',
+                    'addLapPhotoPlaceholder',
+                  )
+                "
+              />
+              <button
+                class="btn-remove-photo"
+                id="addLapRemovePhoto"
+                style="display: none"
+                onclick="
+                  removePhoto(
+                    'addLapPhoto',
+                    'addLapPhotoPreview',
+                    'addLapPhotoPlaceholder',
+                    'addLapRemovePhoto',
+                  )
+                "
+              >
+                ✕ Hapus Foto
+              </button>
+              <!-- Prioritas Picker -->
+              <div class="form-section-title" style="margin-top: 16px">
+                Prioritas
+              </div>
+              <div class="prio-picker">
+                <label class="prio-opt">
+                  <input type="radio" name="lapPrioR" value="Rendah" />
+                  <span class="prio-chip low">Rendah</span>
+                </label>
+                <label class="prio-opt">
+                  <input type="radio" name="lapPrioR" value="Sedang" checked />
+                  <span class="prio-chip medium">Sedang</span>
+                </label>
+                <label class="prio-opt">
+                  <input type="radio" name="lapPrioR" value="Tinggi" />
+                  <span class="prio-chip high">Tinggi</span>
+                </label>
+                <label class="prio-opt">
+                  <input type="radio" name="lapPrioR" value="Kritis" />
+                  <span class="prio-chip critical">Kritis</span>
+                </label>
+              </div>
+            </div>
+            <!-- Form Detail -->
+            <div class="form-fields-col">
+              <div class="form-section-title">Detail Kerusakan</div>
+              <div class="form-group">
+                <label>NAMA ALAT <span class="req">*</span></label>
+                <select id="addLapNama">
+                  <option value="">Pilih alat dari inventaris...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>LOKASI / NOMOR UNIT</label>
+                <input
+                  id="addLapLokasi"
+                  placeholder="Contoh: Meja 5, Unit #3"
+                />
+              </div>
+              <div class="form-group">
+                <label>DESKRIPSI KERUSAKAN <span class="req">*</span></label>
+                <textarea
+                  id="addLapDesk"
+                  rows="4"
+                  placeholder="Jelaskan kerusakan secara detail. Kapan terjadi, gejala yang muncul, dll."
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label>TANGGAL KEJADIAN</label>
+                <input id="addLapTgl" type="date" />
+              </div>
             </div>
           </div>
-          <input type="file" id="addLapPhoto" accept="image/*" style="display:none" onchange="previewPhoto('addLapPhoto','addLapPhotoPreview','addLapPhotoPlaceholder')">
-          <button class="btn-remove-photo" id="addLapRemovePhoto" style="display:none" onclick="removePhoto('addLapPhoto','addLapPhotoPreview','addLapPhotoPlaceholder','addLapRemovePhoto')">✕ Hapus Foto</button>
-          <!-- Prioritas Picker -->
-          <div class="form-section-title" style="margin-top:16px">Prioritas</div>
-          <div class="prio-picker">
-            <label class="prio-opt">
-              <input type="radio" name="lapPrioR" value="Rendah">
-              <span class="prio-chip low">Rendah</span>
-            </label>
-            <label class="prio-opt">
-              <input type="radio" name="lapPrioR" value="Sedang" checked>
-              <span class="prio-chip medium">Sedang</span>
-            </label>
-            <label class="prio-opt">
-              <input type="radio" name="lapPrioR" value="Tinggi">
-              <span class="prio-chip high">Tinggi</span>
-            </label>
-            <label class="prio-opt">
-              <input type="radio" name="lapPrioR" value="Kritis">
-              <span class="prio-chip critical">Kritis</span>
-            </label>
-          </div>
         </div>
-        <!-- Form Detail -->
-        <div class="form-fields-col">
-          <div class="form-section-title">Detail Kerusakan</div>
-          <div class="form-group">
-            <label>NAMA ALAT <span class="req">*</span></label>
-            <input id="addLapNama" placeholder="Contoh: Proyektor Epson #2">
-          </div>
-          <div class="form-group">
-            <label>LOKASI / NOMOR UNIT</label>
-            <input id="addLapLokasi" placeholder="Contoh: Meja 5, Unit #3">
-          </div>
-          <div class="form-group">
-            <label>DESKRIPSI KERUSAKAN <span class="req">*</span></label>
-            <textarea id="addLapDesk" rows="4" placeholder="Jelaskan kerusakan secara detail. Kapan terjadi, gejala yang muncul, dll."></textarea>
-          </div>
-          <div class="form-group">
-            <label>TANGGAL KEJADIAN</label>
-            <input id="addLapTgl" type="date">
-          </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('addLaporanModal')">
+            Batal
+          </button>
+          <button class="btn-save btn-danger-save" onclick="addLaporan()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              />
+            </svg>
+            Kirim Laporan
+          </button>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('addLaporanModal')">Batal</button>
-      <button class="btn-save btn-danger-save" onclick="addLaporan()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-        Kirim Laporan
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- =============================================
+    <!-- =============================================
      MODAL: CATAT PEMINJAMAN
 ============================================= -->
-<div class="modal-overlay" id="addPinjamModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#f59e0b,#10b981)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-        </svg>
-      </div>
-      <div>
-        <h3>Catat Peminjaman Alat</h3>
-        <p class="modal-subtitle">Rekam data peminjaman alat laboratorium</p>
-      </div>
-      <button class="modal-close" onclick="closeModal('addPinjamModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-card-grid">
-        <!-- Foto KTP/Kartu -->
-        <div class="form-photo-col">
-          <div class="form-section-title">Foto Peminjam</div>
-          <div class="photo-upload-box" id="addPinjamPhotoBox" onclick="document.getElementById('addPinjamPhoto').click()">
-            <img id="addPinjamPhotoPreview" src="" alt="" style="display:none">
-            <div class="photo-upload-placeholder" id="addPinjamPhotoPlaceholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <span>Foto kartu / identitas</span>
-              <small>Opsional sebagai bukti</small>
+    <div
+      class="modal-overlay"
+      id="addPinjamModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #f59e0b, #10b981)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <path
+                d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+              />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+          </div>
+          <div>
+            <h3>Catat Peminjaman Alat</h3>
+            <p class="modal-subtitle">
+              Rekam data peminjaman alat laboratorium
+            </p>
+          </div>
+          <button class="modal-close" onclick="closeModal('addPinjamModal')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-card-grid">
+            <!-- Foto KTP/Kartu -->
+            <div class="form-photo-col">
+              <div class="form-section-title">Foto Peminjam</div>
+              <div
+                class="photo-upload-box"
+                id="addPinjamPhotoBox"
+                onclick="document.getElementById('addPinjamPhoto').click()"
+              >
+                <img
+                  id="addPinjamPhotoPreview"
+                  src=""
+                  alt=""
+                  style="display: none"
+                />
+                <div
+                  class="photo-upload-placeholder"
+                  id="addPinjamPhotoPlaceholder"
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>Foto kartu / identitas</span>
+                  <small>Opsional sebagai bukti</small>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="addPinjamPhoto"
+                accept="image/*"
+                style="display: none"
+                onchange="
+                  previewPhoto(
+                    'addPinjamPhoto',
+                    'addPinjamPhotoPreview',
+                    'addPinjamPhotoPlaceholder',
+                  )
+                "
+              />
+              <button
+                class="btn-remove-photo"
+                id="addPinjamRemovePhoto"
+                style="display: none"
+                onclick="
+                  removePhoto(
+                    'addPinjamPhoto',
+                    'addPinjamPhotoPreview',
+                    'addPinjamPhotoPlaceholder',
+                    'addPinjamRemovePhoto',
+                  )
+                "
+              >
+                ✕ Hapus Foto
+              </button>
+              <!-- Tanggal -->
+              <div class="form-section-title" style="margin-top: 16px">
+                Periode Pinjam
+              </div>
+              <div class="form-group">
+                <label>TANGGAL PINJAM</label>
+                <input id="addPinjamTgl" type="date" />
+              </div>
+              <div class="form-group">
+                <label>RENCANA KEMBALI</label>
+                <input id="addPinjamKembali" type="date" />
+              </div>
+            </div>
+            <!-- Form -->
+            <div class="form-fields-col">
+              <div class="form-section-title">Data Peminjam</div>
+              <div class="form-group">
+                <label>NAMA PEMINJAM <span class="req">*</span></label>
+                <input id="addPinjamNama" placeholder="Nama lengkap peminjam" />
+              </div>
+              <div class="form-group">
+                <label>KELAS / JABATAN</label>
+                <input id="addPinjamKelas" placeholder="Contoh: XI RPL 1" />
+              </div>
+              <div class="form-section-title" style="margin-top: 12px">
+                Data Alat
+              </div>
+              <div class="form-group">
+                <label>NAMA ALAT <span class="req">*</span></label>
+                <input
+                  id="addPinjamAlat"
+                  placeholder="Nama alat yang dipinjam"
+                />
+              </div>
+              <div class="form-group">
+                <label>JUMLAH UNIT</label>
+                <div class="qty-stepper">
+                  <button type="button" onclick="stepQty('addPinjamQty', -1)">
+                    −
+                  </button>
+                  <input id="addPinjamQty" type="number" min="1" value="1" />
+                  <button type="button" onclick="stepQty('addPinjamQty', 1)">
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>CATATAN KONDISI ALAT</label>
+                <textarea
+                  id="addPinjamNote"
+                  rows="2"
+                  placeholder="Kondisi alat saat dipinjam..."
+                ></textarea>
+              </div>
             </div>
           </div>
-          <input type="file" id="addPinjamPhoto" accept="image/*" style="display:none" onchange="previewPhoto('addPinjamPhoto','addPinjamPhotoPreview','addPinjamPhotoPlaceholder')">
-          <button class="btn-remove-photo" id="addPinjamRemovePhoto" style="display:none" onclick="removePhoto('addPinjamPhoto','addPinjamPhotoPreview','addPinjamPhotoPlaceholder','addPinjamRemovePhoto')">✕ Hapus Foto</button>
-          <!-- Tanggal -->
-          <div class="form-section-title" style="margin-top:16px">Periode Pinjam</div>
-          <div class="form-group">
-            <label>TANGGAL PINJAM</label>
-            <input id="addPinjamTgl" type="date">
-          </div>
-          <div class="form-group">
-            <label>RENCANA KEMBALI</label>
-            <input id="addPinjamKembali" type="date">
-          </div>
         </div>
-        <!-- Form -->
-        <div class="form-fields-col">
-          <div class="form-section-title">Data Peminjam</div>
-          <div class="form-group">
-            <label>NAMA PEMINJAM <span class="req">*</span></label>
-            <input id="addPinjamNama" placeholder="Nama lengkap peminjam">
-          </div>
-          <div class="form-group">
-            <label>KELAS / JABATAN</label>
-            <input id="addPinjamKelas" placeholder="Contoh: XI RPL 1">
-          </div>
-          <div class="form-section-title" style="margin-top:12px">Data Alat</div>
-          <div class="form-group">
-            <label>NAMA ALAT <span class="req">*</span></label>
-            <input id="addPinjamAlat" placeholder="Nama alat yang dipinjam">
-          </div>
-          <div class="form-group">
-            <label>JUMLAH UNIT</label>
-            <div class="qty-stepper">
-              <button type="button" onclick="stepQty('addPinjamQty',-1)">−</button>
-              <input id="addPinjamQty" type="number" min="1" value="1">
-              <button type="button" onclick="stepQty('addPinjamQty',1)">+</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>CATATAN KONDISI ALAT</label>
-            <textarea id="addPinjamNote" rows="2" placeholder="Kondisi alat saat dipinjam..."></textarea>
-          </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('addPinjamModal')">
+            Batal
+          </button>
+          <button class="btn-save" onclick="addPinjam()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Catat Peminjaman
+          </button>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('addPinjamModal')">Batal</button>
-      <button class="btn-save" onclick="addPinjam()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Catat Peminjaman
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- =============================================
+    <!-- =============================================
      MODAL: DETAIL UNIT
 ============================================= -->
-<div class="modal-overlay" id="unitDetailModal" onclick="closeModalOutside(event)">
-  <div class="modal modal-unit">
-    <div class="modal-header">
-      <div class="modal-header-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
+    <div
+      class="modal-overlay"
+      id="unitDetailModal"
+      onclick="closeModalOutside(event)"
+    >
+      <div class="modal modal-unit">
+        <div class="modal-header">
+          <div
+            class="modal-header-icon"
+            style="background: linear-gradient(135deg, #0ea5e9, #6366f1)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2.2"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="unitModalTitle">Detail Unit</h3>
+            <p class="modal-subtitle" id="unitModalSub"></p>
+          </div>
+          <button class="modal-close" onclick="closeModal('unitDetailModal')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body" style="padding-top: 0">
+          <!-- Summary badges -->
+          <div class="unit-summary-bar" id="unitSummary"></div>
+          <!-- Filter -->
+          <div class="unit-filter-bar">
+            <input
+              class="search-sm"
+              id="unitSearch"
+              placeholder="Cari unit..."
+              oninput="filterUnitTable()"
+              style="flex: 1"
+            />
+            <select
+              id="unitFilter"
+              onchange="filterUnitTable()"
+              style="
+                padding: 6px 10px;
+                background: var(--bg3);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text-muted);
+                font-size: 12px;
+              "
+            >
+              <option value="">Semua Kondisi</option>
+              <option>Sangat Baik</option>
+              <option>Baik</option>
+              <option>Cukup</option>
+              <option>Rusak</option>
+            </select>
+          </div>
+          <!-- Tabel unit -->
+          <div style="overflow-x: auto; max-height: 420px; overflow-y: auto">
+            <table class="data-table unit-table">
+              <thead>
+                <tr>
+                  <th>UNIT</th>
+                  <th>KONDISI</th>
+                  <th>CATATAN KERUSAKAN</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="unitBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('unitDetailModal')">
+            Tutup
+          </button>
+        </div>
       </div>
-      <div>
-        <h3 id="unitModalTitle">Detail Unit</h3>
-        <p class="modal-subtitle" id="unitModalSub"></p>
-      </div>
-      <button class="modal-close" onclick="closeModal('unitDetailModal')">✕</button>
     </div>
-    <div class="modal-body" style="padding-top:0">
-      <!-- Summary badges -->
-      <div class="unit-summary-bar" id="unitSummary"></div>
-      <!-- Filter -->
-      <div class="unit-filter-bar">
-        <input class="search-sm" id="unitSearch" placeholder="Cari unit..." oninput="filterUnitTable()" style="flex:1">
-        <select id="unitFilter" onchange="filterUnitTable()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px">
-          <option value="">Semua Kondisi</option>
-          <option>Sangat Baik</option>
-          <option>Baik</option>
-          <option>Cukup</option>
-          <option>Rusak</option>
-        </select>
-      </div>
-      <!-- Tabel unit -->
-      <div style="overflow-x:auto;max-height:420px;overflow-y:auto">
-        <table class="data-table unit-table">
-          <thead>
-            <tr>
-              <th>UNIT</th><th>KONDISI</th><th>CATATAN KERUSAKAN</th><th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody id="unitBody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('unitDetailModal')">Tutup</button>
-    </div>
-  </div>
-</div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-<script src="../assets/js/dashboard.js"></script>
-</body>
+    <!-- Firebase Compat SDK (Realtime Database) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <!-- App Services -->
+    <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/r2-service.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+  </body>
 </html>

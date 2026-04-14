@@ -1,27 +1,23 @@
 "use strict";
 
 /* ===========================
-   TEACHER CREDENTIALS PER LAB
+   LAB PROFILE HINTS
 =========================== */
-const LAB_CREDENTIALS = {
+const LAB_PROFILES = {
   "Computer Lab": {
     email: "budi@labflow.id",
-    password: "komputer123",
     teacher: "Budi Santoso",
   },
   "Physics Lab": {
     email: "sari@labflow.id",
-    password: "fisika123",
     teacher: "Dr. Sari Dewi",
   },
   "Chemistry Lab": {
     email: "andi@labflow.id",
-    password: "kimia123",
     teacher: "Andi Pratama",
   },
   "Biology Lab": {
     email: "rita@labflow.id",
-    password: "biologi123",
     teacher: "Rita Wulandari",
   },
 };
@@ -30,6 +26,15 @@ const LAB_CREDENTIALS = {
    CURRENT LAB (from URL, set by dashboard)
 =========================== */
 let currentLab = null;
+
+function navigateTo(path) {
+  const target = new URL(path, window.location.href).toString();
+  try {
+    window.location.assign(target);
+  } catch (err) {
+    window.open(target, "_self");
+  }
+}
 
 const LAB_EMOJIS = {
   "Computer Lab": "[COM]",
@@ -53,59 +58,167 @@ document.addEventListener("DOMContentLoaded", () => {
     chip.style.display = "inline-flex";
 
     // Also hint the email placeholder
-    const cred = LAB_CREDENTIALS[currentLab];
-    if (cred) {
-      document.getElementById("emailInput").placeholder = cred.email;
+    const profile = LAB_PROFILES[currentLab];
+    if (profile) {
+      document.getElementById("emailInput").placeholder = profile.email;
     }
   }
 
+  bindAuthState();
   initCanvas();
 });
+
+function bindAuthState() {
+  if (typeof auth === "undefined") return;
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) return;
+
+    const profile = await getUserProfile(user.uid);
+    const profileLab = profile.lab || currentLab || sessionStorage.getItem("loggedInLab");
+
+    if (!profileLab) return;
+    if (currentLab && profile.lab && currentLab !== profile.lab) {
+      showAlert(`Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`);
+      return;
+    }
+
+    const teacherName = resolveTeacherName(user, profile, profileLab);
+    persistSession(profileLab, teacherName, user.email || "");
+    navigateTo("dashboard.html");
+  });
+}
 
 /* ===========================
    HANDLE LOGIN
 =========================== */
-window.handleLogin = function (e) {
+window.handleLogin = async function (e) {
   e.preventDefault();
   const email = document.getElementById("emailInput").value.trim();
   const pass = document.getElementById("passInput").value;
 
+  if (!email || !pass) {
+    showAlert("Email dan kata sandi wajib diisi.");
+    return;
+  }
   if (!currentLab) {
-    showAlert(
-      "Lab tidak diketahui. Kembali ke dashboard dan pilih lab terlebih dahulu.",
-    );
+    showAlert("Lab tidak diketahui. Pilih lab dari dashboard terlebih dahulu.");
+    return;
+  }
+  if (typeof auth === "undefined") {
+    showAlert("Firebase Auth belum siap. Muat ulang halaman.");
     return;
   }
 
   setLoading(true);
   hideAlert();
 
-  setTimeout(() => {
-    const cred = LAB_CREDENTIALS[currentLab];
-    if (!cred) {
-      showAlert("Laboratorium tidak ditemukan.");
-      setLoading(false);
-      return;
-    }
+  try {
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    const result = await auth.signInWithEmailAndPassword(email, pass);
+    const user = result.user;
+    if (!user) throw new Error("auth/no-user");
 
-    if (email !== cred.email || pass !== cred.password) {
-      showAlert(
-        "Email atau kata sandi salah. Periksa kembali kredensial Anda.",
-      );
-      setLoading(false);
+    const profile = await getUserProfile(user.uid);
+    if (profile.lab && profile.lab !== currentLab) {
+      await auth.signOut();
+      showAlert(`Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`);
       shakeCard();
       return;
     }
 
-    // Save session
-    sessionStorage.setItem("loggedInLab", currentLab);
-    sessionStorage.setItem("loggedInTeacher", cred.teacher);
-    sessionStorage.setItem("loggedInEmail", email);
+    const teacherName = resolveTeacherName(user, profile, currentLab);
+    persistSession(currentLab, teacherName, user.email || email);
+    await upsertUserProfile(user, currentLab, teacherName);
 
-    // Redirect to dashboard
-    window.location.href = "dashboard.html";
-  }, 900);
+    navigateTo("dashboard.html");
+  } catch (err) {
+    showAlert(mapAuthError(err));
+    shakeCard();
+  } finally {
+    setLoading(false);
+  }
 };
+
+async function getUserProfile(uid) {
+  if (!uid || typeof db === "undefined") return {};
+
+  try {
+    const snap = await db.ref(`user_profiles/${uid}`).once("value");
+    return snap.exists() ? snap.val() || {} : {};
+  } catch (err) {
+    console.warn("Gagal membaca profil user:", err);
+    return {};
+  }
+}
+
+async function upsertUserProfile(user, labName, teacherName) {
+  if (!user || typeof db === "undefined") return;
+
+  const payload = {
+    uid: user.uid,
+    email: user.email || "",
+    teacher: teacherName,
+    lab: labName,
+    updatedAt: Date.now(),
+  };
+
+  try {
+    await db.ref(`user_profiles/${user.uid}`).update(payload);
+  } catch (err) {
+    console.warn("Gagal menyimpan profil user:", err);
+  }
+}
+
+function persistSession(labName, teacherName, userEmail) {
+  sessionStorage.setItem("loggedInLab", labName);
+  sessionStorage.setItem("loggedInTeacher", teacherName);
+  sessionStorage.setItem("loggedInEmail", userEmail);
+}
+
+function resolveTeacherName(user, profile, labName) {
+  if (profile && profile.teacher) return profile.teacher;
+  if (user && user.displayName) return user.displayName;
+  if (LAB_PROFILES[labName] && LAB_PROFILES[labName].teacher) {
+    return LAB_PROFILES[labName].teacher;
+  }
+  return deriveTeacherFromEmail((user && user.email) || "");
+}
+
+function deriveTeacherFromEmail(addr) {
+  const local = String(addr || "")
+    .split("@")[0]
+    .replace(/[._-]+/g, " ")
+    .trim();
+  if (!local) return "Pengelola Lab";
+  return local
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function mapAuthError(err) {
+  const code = err && err.code ? err.code : "";
+
+  if (
+    code === "auth/invalid-credential" ||
+    code === "auth/wrong-password" ||
+    code === "auth/user-not-found"
+  ) {
+    return "Email atau kata sandi salah.";
+  }
+  if (code === "auth/invalid-email") {
+    return "Format email tidak valid.";
+  }
+  if (code === "auth/too-many-requests") {
+    return "Terlalu banyak percobaan login. Coba lagi beberapa saat.";
+  }
+  if (code === "auth/network-request-failed") {
+    return "Koneksi internet bermasalah. Periksa jaringan Anda.";
+  }
+  return "Login gagal. Silakan coba lagi.";
+}
 
 /* ===========================
    TOGGLE PASSWORD VISIBILITY
