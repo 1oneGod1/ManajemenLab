@@ -22,10 +22,21 @@ const LAB_PROFILES = {
   },
 };
 
+const DEMO_CREDENTIALS = {
+  "Computer Lab": { email: "budi@labflow.id", password: "komputer123" },
+  "Physics Lab": { email: "sari@labflow.id", password: "fisika123" },
+  "Chemistry Lab": { email: "andi@labflow.id", password: "kimia123" },
+  "Biology Lab": { email: "rita@labflow.id", password: "biologi123" },
+};
+
 /* ===========================
    CURRENT LAB (from URL, set by dashboard)
 =========================== */
 let currentLab = null;
+
+// State for unverified user resend flow
+let _unverifiedEmail = null;
+let _unverifiedPass = null;
 
 function navigateTo(path) {
   const target = new URL(path, window.location.href).toString();
@@ -37,10 +48,10 @@ function navigateTo(path) {
 }
 
 const LAB_EMOJIS = {
-  "Computer Lab": "[COM]",
-  "Physics Lab": "[PHY]",
-  "Chemistry Lab": "[CHE]",
-  "Biology Lab": "[BIO]",
+  "Computer Lab": "🗁",
+  "Physics Lab": "🗁",
+  "Chemistry Lab": "🗁",
+  "Biology Lab": "🗁",
 };
 
 /* ===========================
@@ -74,12 +85,21 @@ function bindAuthState() {
   auth.onAuthStateChanged(async (user) => {
     if (!user) return;
 
+    // Block auto-redirect for unverified non-demo users
+    if (!user.emailVerified && !isDemoEmail(user.email)) {
+      await auth.signOut();
+      return;
+    }
+
     const profile = await getUserProfile(user.uid);
-    const profileLab = profile.lab || currentLab || sessionStorage.getItem("loggedInLab");
+    const profileLab =
+      profile.lab || currentLab || sessionStorage.getItem("loggedInLab");
 
     if (!profileLab) return;
     if (currentLab && profile.lab && currentLab !== profile.lab) {
-      showAlert(`Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`);
+      showAlert(
+        `Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`,
+      );
       return;
     }
 
@@ -115,14 +135,29 @@ window.handleLogin = async function (e) {
 
   try {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    const result = await auth.signInWithEmailAndPassword(email, pass);
+    const result = await signInOrBootstrapDemoUser(email, pass, currentLab);
     const user = result.user;
     if (!user) throw new Error("auth/no-user");
+
+    // Block login if email not verified (skip for demo accounts)
+    if (!user.emailVerified && !isDemoEmail(user.email)) {
+      _unverifiedEmail = email;
+      _unverifiedPass = pass;
+      await auth.signOut();
+      showInfoBox(
+        "Email belum diverifikasi. Cek inbox Anda lalu coba login kembali.",
+        true,
+      );
+      shakeCard();
+      return;
+    }
 
     const profile = await getUserProfile(user.uid);
     if (profile.lab && profile.lab !== currentLab) {
       await auth.signOut();
-      showAlert(`Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`);
+      showAlert(
+        `Akun ini terdaftar untuk ${profile.lab}, bukan ${currentLab}.`,
+      );
       shakeCard();
       return;
     }
@@ -139,6 +174,39 @@ window.handleLogin = async function (e) {
     setLoading(false);
   }
 };
+
+async function signInOrBootstrapDemoUser(email, password, labName) {
+  try {
+    return await auth.signInWithEmailAndPassword(email, password);
+  } catch (signInErr) {
+    if (!canBootstrapDemoUser(labName, email, password)) {
+      throw signInErr;
+    }
+
+    try {
+      return await auth.createUserWithEmailAndPassword(email, password);
+    } catch (createErr) {
+      if (createErr && createErr.code === "auth/email-already-in-use") {
+        return await auth.signInWithEmailAndPassword(email, password);
+      }
+      throw createErr;
+    }
+  }
+}
+
+function canBootstrapDemoUser(labName, email, password) {
+  if (!labName || !email || !password) return false;
+
+  const demo = DEMO_CREDENTIALS[labName];
+  if (!demo) return false;
+
+  const normalizedInputEmail = String(email).trim().toLowerCase();
+  const normalizedDemoEmail = String(demo.email).trim().toLowerCase();
+
+  return (
+    normalizedInputEmail === normalizedDemoEmail && password === demo.password
+  );
+}
 
 async function getUserProfile(uid) {
   if (!uid || typeof db === "undefined") return {};
@@ -198,6 +266,182 @@ function deriveTeacherFromEmail(addr) {
     .join(" ");
 }
 
+/* ===========================
+   PANEL TOGGLES
+=========================== */
+window.showRegisterPanel = function () {
+  document.getElementById("loginPanel").style.display = "none";
+  document.getElementById("registerPanel").style.display = "";
+  document.getElementById("verifyPanel").style.display = "none";
+  hideAlert();
+  hideInfoBox();
+  hideRegAlert();
+};
+
+window.showLoginPanel = function () {
+  document.getElementById("loginPanel").style.display = "";
+  document.getElementById("registerPanel").style.display = "none";
+  document.getElementById("verifyPanel").style.display = "none";
+};
+
+function showVerifyPanel(email) {
+  document.getElementById("loginPanel").style.display = "none";
+  document.getElementById("registerPanel").style.display = "none";
+  document.getElementById("verifyPanel").style.display = "";
+  document.getElementById("verifyEmailDisplay").textContent = email;
+}
+
+/* ===========================
+   HANDLE REGISTER
+=========================== */
+window.handleRegister = async function (e) {
+  e.preventDefault();
+
+  const name = document.getElementById("regNameInput").value.trim();
+  const lab = document.getElementById("regLabInput").value;
+  const email = document.getElementById("regEmailInput").value.trim();
+  const pass = document.getElementById("regPassInput").value;
+  const confirm = document.getElementById("regConfirmInput").value;
+
+  if (!name) return showRegAlert("Nama lengkap wajib diisi.");
+  if (!lab) return showRegAlert("Pilih laboratorium Anda.");
+  if (!email) return showRegAlert("Alamat email wajib diisi.");
+  if (!pass) return showRegAlert("Kata sandi wajib diisi.");
+  if (pass.length < 6) return showRegAlert("Kata sandi minimal 6 karakter.");
+  if (pass !== confirm)
+    return showRegAlert("Konfirmasi kata sandi tidak cocok.");
+
+  if (typeof auth === "undefined") {
+    return showRegAlert("Firebase Auth belum siap. Muat ulang halaman.");
+  }
+
+  setRegLoading(true);
+  hideRegAlert();
+
+  try {
+    const result = await auth.createUserWithEmailAndPassword(email, pass);
+    const user = result.user;
+
+    // Set display name
+    await user.updateProfile({ displayName: name });
+
+    // Save profile to Realtime DB
+    await upsertUserProfile(user, lab, name);
+
+    // Send email verification
+    await user.sendEmailVerification();
+
+    // Store for potential resend
+    _unverifiedEmail = email;
+    _unverifiedPass = pass;
+
+    // Sign out — user must verify before logging in
+    await auth.signOut();
+
+    showVerifyPanel(email);
+  } catch (err) {
+    showRegAlert(mapAuthError(err));
+  } finally {
+    setRegLoading(false);
+  }
+};
+
+/* ===========================
+   RESEND VERIFICATION
+=========================== */
+window.resendVerificationFromPanel = async function () {
+  if (!_unverifiedEmail || !_unverifiedPass) {
+    showLoginPanel();
+    showAlert("Silakan login untuk mengirim ulang verifikasi.");
+    return;
+  }
+  await _doResendVerification(_unverifiedEmail, _unverifiedPass);
+};
+
+// Called by resendBtn in infoBox on login panel
+window.resendVerificationEmail = async function () {
+  if (!_unverifiedEmail || !_unverifiedPass) return;
+  await _doResendVerification(_unverifiedEmail, _unverifiedPass);
+};
+
+async function _doResendVerification(email, pass) {
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, pass);
+    await result.user.sendEmailVerification();
+    await auth.signOut();
+    showLoginPanel();
+    showInfoBox(
+      "Email verifikasi telah dikirim ulang ke " + email + ". Cek inbox Anda.",
+      false,
+    );
+  } catch (err) {
+    showLoginPanel();
+    showAlert("Gagal mengirim ulang email: " + mapAuthError(err));
+  }
+}
+
+/* ===========================
+   DEMO EMAIL CHECK
+=========================== */
+function isDemoEmail(email) {
+  const normalized = String(email || "")
+    .trim()
+    .toLowerCase();
+  return Object.values(DEMO_CREDENTIALS).some(
+    (d) => d.email.toLowerCase() === normalized,
+  );
+}
+
+/* ===========================
+   REGISTER HELPERS
+=========================== */
+function setRegLoading(on) {
+  const btn = document.getElementById("regBtn");
+  document.getElementById("regBtnText").style.display = on ? "none" : "";
+  document.getElementById("regBtnSpinner").style.display = on ? "" : "none";
+  btn.disabled = on;
+}
+
+function showRegAlert(msg) {
+  const box = document.getElementById("regAlertBox");
+  document.getElementById("regAlertMsg").textContent = msg;
+  box.style.display = "flex";
+}
+
+function hideRegAlert() {
+  const el = document.getElementById("regAlertBox");
+  if (el) el.style.display = "none";
+}
+
+/* ===========================
+   INFO BOX (login panel)
+=========================== */
+function showInfoBox(msg, showResend) {
+  const box = document.getElementById("infoBox");
+  if (!box) return;
+  document.getElementById("infoMsg").textContent = msg;
+  const btn = document.getElementById("resendBtn");
+  if (btn) btn.style.display = showResend ? "" : "none";
+  box.style.display = "flex";
+}
+
+function hideInfoBox() {
+  const box = document.getElementById("infoBox");
+  if (box) box.style.display = "none";
+}
+
+/* ===========================
+   TOGGLE REG PASSWORD
+=========================== */
+window.toggleRegPass = function () {
+  const inp = document.getElementById("regPassInput");
+  const isPass = inp.type === "password";
+  inp.type = isPass ? "text" : "password";
+  document.getElementById("regEyeIcon").innerHTML = isPass
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+};
+
 function mapAuthError(err) {
   const code = err && err.code ? err.code : "";
 
@@ -217,7 +461,16 @@ function mapAuthError(err) {
   if (code === "auth/network-request-failed") {
     return "Koneksi internet bermasalah. Periksa jaringan Anda.";
   }
-  return "Login gagal. Silakan coba lagi.";
+  if (code === "auth/operation-not-allowed") {
+    return "Email/Password belum diaktifkan di Firebase Auth. Aktifkan provider Email/Password di Firebase Console.";
+  }
+  if (code === "auth/weak-password") {
+    return "Kata sandi terlalu lemah. Gunakan minimal 6 karakter.";
+  }
+  if (code === "auth/email-already-in-use") {
+    return "Email sudah terdaftar. Silakan login atau gunakan email lain.";
+  }
+  return "Terjadi kesalahan. Silakan coba lagi.";
 }
 
 /* ===========================

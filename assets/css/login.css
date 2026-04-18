@@ -391,6 +391,86 @@ form { display: flex; flex-direction: column; gap: 18px; }
 .legal-links a { color: var(--text-faint); text-decoration: none; transition: color .15s; }
 .legal-links a:hover { color: var(--text-m); }
 
+/* ===== AUTH SWITCH (toggle login ↔ register) ===== */
+.auth-switch {
+  margin-top: 18px;
+  text-align: center;
+}
+.auth-switch p {
+  font-size: 12.5px;
+  color: var(--text-m);
+}
+.auth-switch .switch-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: inherit;
+  transition: color .15s;
+}
+.auth-switch .switch-btn:hover { color: var(--accent2); }
+
+/* ===== INFO BOX (blue — email unverified notice) ===== */
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: rgba(59,130,246,.1);
+  border: 1px solid rgba(59,130,246,.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #93c5fd;
+  margin-bottom: 18px;
+  animation: fadeIn .25s ease;
+  line-height: 1.5;
+}
+.resend-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: inherit;
+  margin-left: 6px;
+  text-decoration: underline;
+  transition: color .15s;
+}
+.resend-link:hover { color: var(--accent2); }
+
+/* ===== VERIFY PANEL ===== */
+.verify-icon {
+  width: 68px; height: 68px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, rgba(59,130,246,.15), rgba(6,182,212,.1));
+  border: 1px solid rgba(59,130,246,.25);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent2);
+  box-shadow: 0 0 24px rgba(59,130,246,.12);
+}
+.verify-email {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 6px 0 16px;
+  word-break: break-all;
+}
+.verify-info {
+  background: rgba(59,130,246,.07);
+  border: 1px solid rgba(59,130,246,.12);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-m);
+  line-height: 1.65;
+  text-align: center;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 560px) {
   .login-card { padding: 28px 22px 22px; }

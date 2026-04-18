@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabFlow Pro – Sistem Manajemen Laboratorium Terpadu</title>
+  <meta name="description" content="LabFlow Pro: platform modern untuk memantau fasilitas, inventaris, dan laporan kerusakan seluruh laboratorium sekolah dalam satu tempat." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/home.css" />
+</head>
+<body>
+
+  <!-- Animated background -->
+  <div class="bg-overlay"></div>
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- NAV -->
+  <header class="nav">
+    <a href="home.html" class="nav-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+        </svg>
+      </div>
+      <span>LABFLOW PRO</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Fitur</a>
+      <a href="#labs">Laboratorium</a>
+      <a href="#stats">Statistik</a>
+      <a href="#about">Tentang</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="../index.html" class="btn btn-ghost">Admin</a>
+      <a href="#labs" class="btn btn-primary">Mulai</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="dot"></span> Sistem manajemen laboratorium terpadu
+      </div>
+      <h1 class="hero-title">
+        Kelola Seluruh <span class="grad">Laboratorium Sekolah</span><br />
+        dalam Satu Dashboard Modern
+      </h1>
+      <p class="hero-sub">
+        LabFlow Pro membantu guru dan admin memantau fasilitas, mencatat inventaris,
+        dan melaporkan kerusakan — semua tersimpan aman di cloud dan terbarui secara real-time.
+      </p>
+      <div class="hero-cta">
+        <a href="#labs" class="btn btn-primary btn-lg">
+          Pilih Laboratorium
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
+          </svg>
+        </a>
+        <a href="../index.html" class="btn btn-outline btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Buka Dashboard Admin
+        </a>
+      </div>
+
+      <!-- Preview card -->
+      <div class="hero-preview">
+        <div class="preview-bar">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          <div class="preview-url">labflow.app / dashboard</div>
+        </div>
+        <div class="preview-grid">
+          <div class="prev-card">
+            <div class="prev-label">Total Fasilitas</div>
+            <div class="prev-val">248</div>
+            <div class="prev-trend up">+12 minggu ini</div>
+          </div>
+          <div class="prev-card">
+            <div class="prev-label">Laporan Aktif</div>
+            <div class="prev-val">17</div>
+            <div class="prev-trend warn">3 kritis</div>
+          </div>
+          <div class="prev-card">
+            <div class="prev-label">Kondisi Baik</div>
+            <div class="prev-val">92<span class="unit">%</span></div>
+            <div class="prev-trend up">+2.1% dari bulan lalu</div>
+          </div>
+          <div class="prev-card chart-card">
+            <div class="prev-label">Aktivitas 7 Hari</div>
+            <div class="bars">
+              <span style="--h:40%"></span>
+              <span style="--h:72%"></span>
+              <span style="--h:55%"></span>
+              <span style="--h:88%"></span>
+              <span style="--h:62%"></span>
+              <span style="--h:95%"></span>
+              <span style="--h:70%"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats" id="stats">
+    <div class="stat">
+      <div class="stat-num grad">4</div>
+      <div class="stat-label">Laboratorium</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num grad">200+</div>
+      <div class="stat-label">Fasilitas Terdata</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num grad">24/7</div>
+      <div class="stat-label">Sinkronisasi Cloud</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num grad">100%</div>
+      <div class="stat-label">Real-time</div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-head">
+      <div class="section-tag">Fitur Unggulan</div>
+      <h2>Semua yang dibutuhkan <span class="grad">pengelolaan lab modern</span></h2>
+      <p>Dari pendataan fasilitas hingga laporan kerusakan dengan foto, semua terintegrasi rapi.</p>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </div>
+        <h3>Dashboard Ringkas</h3>
+        <p>Pantau kondisi semua fasilitas dan laporan mendesak dari satu tampilan visual.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon cyan">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <h3>Laporan dengan Foto</h3>
+        <p>Guru atau siswa dapat melaporkan kerusakan beserta foto bukti langsung dari browser.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+          </svg>
+        </div>
+        <h3>Penyimpanan Cloud</h3>
+        <p>Data tersimpan di Firebase & Cloudflare R2 — aman, cepat, dan dapat diakses dari mana saja.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+        <h3>Inventaris Visual</h3>
+        <p>Setiap alat dilengkapi foto, jumlah, dan kondisi — mudah diverifikasi secara berkala.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3>Multi-Laboratorium</h3>
+        <p>Computer, Physics, Chemistry, Biology — setiap lab punya panel tersendiri untuk guru penanggung jawab.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon red">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3>Akses Aman</h3>
+        <p>Login via Firebase Authentication dengan verifikasi email, memastikan hanya pengguna sah yang masuk.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LABS -->
+  <section class="section labs-section" id="labs">
+    <div class="section-head">
+      <div class="section-tag">Pilih Laboratorium</div>
+      <h2>Masuk ke <span class="grad">panel lab Anda</span></h2>
+      <p>Klik salah satu laboratorium di bawah untuk masuk ke portal login masing-masing.</p>
+    </div>
+
+    <div class="labs-grid">
+      <a class="lab-card" data-lab="Computer Lab" href="login.html?lab=Computer%20Lab">
+        <div class="lab-ic blue">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <h3>Computer Lab</h3>
+        <p>PC, jaringan, proyektor, periferal.</p>
+        <span class="lab-arrow">→</span>
+      </a>
+
+      <a class="lab-card" data-lab="Physics Lab" href="login.html?lab=Physics%20Lab">
+        <div class="lab-ic cyan">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="19" r="1"/><line x1="12" y1="13" x2="19" y2="6"/><line x1="12" y1="13" x2="5" y2="20"/>
+          </svg>
+        </div>
+        <h3>Physics Lab</h3>
+        <p>Alat mekanika, listrik, optik, dan pengukuran.</p>
+        <span class="lab-arrow">→</span>
+      </a>
+
+      <a class="lab-card" data-lab="Chemistry Lab" href="login.html?lab=Chemistry%20Lab">
+        <div class="lab-ic purple">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 2v7.31l-3.24 5.4A2 2 0 0 0 8.5 18h7a2 2 0 0 0 1.74-2.69L14 9.31V2"/><line x1="6.4" y1="15" x2="17.6" y2="15"/><line x1="8" y1="2" x2="16" y2="2"/>
+          </svg>
+        </div>
+        <h3>Chemistry Lab</h3>
+        <p>Alat gelas, bahan kimia, timbangan, & lemari asam.</p>
+        <span class="lab-arrow">→</span>
+      </a>
+
+      <a class="lab-card" data-lab="Biology Lab" href="login.html?lab=Biology%20Lab">
+        <div class="lab-ic green">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/>
+          </svg>
+        </div>
+        <h3>Biology Lab</h3>
+        <p>Mikroskop, preparat, model anatomi, spesimen.</p>
+        <span class="lab-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ABOUT / CTA -->
+  <section class="section cta" id="about">
+    <div class="cta-box">
+      <div class="cta-left">
+        <div class="section-tag">Tentang LabFlow Pro</div>
+        <h2>Dibangun untuk <span class="grad">sekolah modern</span></h2>
+        <p>
+          LabFlow Pro adalah proyek manajemen laboratorium berbasis web yang berjalan penuh di browser.
+          Menggunakan Firebase Realtime Database untuk sinkronisasi data dan Cloudflare R2 untuk penyimpanan
+          foto, sistem ini ringan, cepat, dan gratis dijalankan.
+        </p>
+        <div class="cta-actions">
+          <a href="#labs" class="btn btn-primary btn-lg">Coba Sekarang</a>
+          <a href="../index.html" class="btn btn-ghost btn-lg">Lihat Dashboard Admin</a>
+        </div>
+      </div>
+      <div class="cta-right">
+        <div class="stack-card">
+          <div class="stack-title">Tech Stack</div>
+          <ul class="stack-list">
+            <li><span class="sl-dot b"></span> Vanilla JS + HTML + CSS</li>
+            <li><span class="sl-dot c"></span> Firebase Realtime Database</li>
+            <li><span class="sl-dot p"></span> Firebase Authentication</li>
+            <li><span class="sl-dot o"></span> Cloudflare R2 Storage</li>
+            <li><span class="sl-dot g"></span> GitHub Pages Hosting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="foot">
+    <div class="foot-inner">
+      <div class="foot-brand">
+        <div class="logo-icon sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+          </svg>
+        </div>
+        <span>LabFlow Pro</span>
+      </div>
+      <p>© <span id="year"></span> LabFlow Pro — ALP Final Project.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener("click", (e) => {
+        const id = a.getAttribute("href");
+        if (id.length > 1) {
+          const el = document.querySelector(id);
+          if (el) { e.preventDefault(); el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+        }
+      });
+    });
+
+    // Subtle particle canvas
+    (function () {
+      const c = document.getElementById("bgCanvas");
+      if (!c) return;
+      const ctx = c.getContext("2d");
+      let W, H, parts;
+      function resize() {
+        W = c.width = window.innerWidth;
+        H = c.height = window.innerHeight;
+        const n = Math.min(70, Math.floor((W * H) / 24000));
+        parts = Array.from({ length: n }, () => ({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 1.6 + 0.4,
+        }));
+      }
+      function tick() {
+        ctx.clearRect(0, 0, W, H);
+        for (const p of parts) {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > W) p.vx *= -1;
+          if (p.y < 0 || p.y > H) p.vy *= -1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(59,130,246,.45)";
+          ctx.fill();
+        }
+        for (let i = 0; i < parts.length; i++) {
+          for (let j = i + 1; j < parts.length; j++) {
+            const dx = parts[i].x - parts[j].x;
+            const dy = parts[i].y - parts[j].y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 120) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(6,182,212,${0.18 * (1 - d / 120)})`;
+              ctx.lineWidth = 0.6;
+              ctx.moveTo(parts[i].x, parts[i].y);
+              ctx.lineTo(parts[j].x, parts[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+      resize();
+      window.addEventListener("resize", resize);
+      tick();
+    })();
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in"); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".feat, .lab-card, .stat, .prev-card, .stack-card").forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>

@@ -12,7 +12,12 @@ let globalReportsRaw = [];
 let labFacilitiesRaw = [];
 let labReportsRaw = [];
 
-const LAB_NAMES = ["Computer Lab", "Physics Lab", "Chemistry Lab", "Biology Lab"];
+// Dynamic lab & room lists (from Firebase dev_config)
+let devLabs = [];
+let devRooms = [];
+
+const DEFAULT_LAB_NAMES = ["Computer Lab", "Physics Lab", "Chemistry Lab", "Biology Lab"];
+let LAB_NAMES = [...DEFAULT_LAB_NAMES];
 const LAB_CONDITION_TO_GLOBAL = {
   "Sangat Baik": "Excellent",
   Baik: "Good",
@@ -34,6 +39,97 @@ const REPORT_PRIORITY_TO_GLOBAL = {
   Sedang: "Medium",
   Tinggi: "High",
   Kritis: "Critical",
+};
+
+/* ===========================
+   DEVELOPER AUTH
+=========================== */
+const DEVELOPER_EMAILS = ["pandapotanandi@gmail.com"];
+let _devAuthed = false;
+
+window.showPage = function (page) {
+  if (page === "developer" && !_devAuthed) {
+    // Store intended page, show login modal
+    openDeveloperLogin();
+    return;
+  }
+  _doShowPage(page);
+};
+
+function _doShowPage(page) {
+  document
+    .querySelectorAll(".page-panel")
+    .forEach((panel) => panel.classList.add("hidden"));
+  const target = document.getElementById("page-" + page);
+  if (target) target.classList.remove("hidden");
+  document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.page === page);
+  });
+}
+
+function openDeveloperLogin() {
+  const err = document.getElementById("devLoginErr");
+  if (err) { err.style.display = "none"; err.textContent = ""; }
+  const emailEl = document.getElementById("devLoginEmail");
+  const passEl = document.getElementById("devLoginPassword");
+  if (emailEl) emailEl.value = "";
+  if (passEl) passEl.value = "";
+  document.getElementById("devLoginModal").classList.add("open");
+  setTimeout(() => { if (emailEl) emailEl.focus(); }, 100);
+}
+
+window.closeDeveloperLogin = function () {
+  document.getElementById("devLoginModal").classList.remove("open");
+  // Re-activate previously active nav item
+  document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.page === "dashboard");
+  });
+};
+
+window.submitDeveloperLogin = async function () {
+  const email = (document.getElementById("devLoginEmail")?.value || "").trim().toLowerCase();
+  const password = document.getElementById("devLoginPassword")?.value || "";
+  const errBox = document.getElementById("devLoginErr");
+  const btn = document.getElementById("devLoginBtn");
+
+  if (!email || !password) {
+    errBox.textContent = "Email dan password wajib diisi.";
+    errBox.style.display = "block";
+    return;
+  }
+  if (!DEVELOPER_EMAILS.includes(email)) {
+    errBox.textContent = "Akun ini tidak memiliki akses developer.";
+    errBox.style.display = "block";
+    return;
+  }
+  if (typeof auth === "undefined") {
+    errBox.textContent = "Firebase Auth belum siap. Muat ulang halaman.";
+    errBox.style.display = "block";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Memverifikasi…";
+  errBox.style.display = "none";
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    _devAuthed = true;
+    document.getElementById("devLoginModal").classList.remove("open");
+    _doShowPage("developer");
+    showToast("Developer mode aktif.");
+  } catch (err) {
+    const msg = err.code === "auth/wrong-password" || err.code === "auth/user-not-found"
+      ? "Email atau password salah."
+      : err.code === "auth/invalid-email"
+      ? "Format email tidak valid."
+      : "Login gagal: " + err.message;
+    errBox.textContent = msg;
+    errBox.style.display = "block";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Masuk";
+  }
 };
 
 /* ===========================
@@ -183,6 +279,42 @@ function initFirebaseListeners() {
     },
   );
 
+  // --- Dev config: labs ---
+  db.ref("dev_config/labs").on(
+    "value",
+    (snap) => {
+      devLabs = [];
+      snap.forEach((child) => {
+        devLabs.push({ _key: child.key, ...child.val() });
+      });
+      const customNames = devLabs.map((l) => l.name);
+      LAB_NAMES = [
+        ...DEFAULT_LAB_NAMES,
+        ...customNames.filter((n) => !DEFAULT_LAB_NAMES.includes(n)),
+      ];
+      renderSidebarLabList();
+      renderDevLabGrid();
+    },
+    (err) => console.error("Firebase dev_config/labs error:", err),
+  );
+
+  // --- Dev config: rooms ---
+  db.ref("dev_config/rooms").on(
+    "value",
+    (snap) => {
+      devRooms = [];
+      snap.forEach((child) => {
+        devRooms.push({ _key: child.key, ...child.val() });
+      });
+      renderDevRoomGrid();
+    },
+    (err) => console.error("Firebase dev_config/rooms error:", err),
+  );
+
+  // --- Dev config: custom sections & items ---
+  initDevSectionsListener();
+  initDevSectionItemsListener();
+
   // --- Activity feed lintas halaman ---
   db.ref("activity_log")
     .limitToLast(80)
@@ -216,6 +348,31 @@ function normalizePriorityForGlobal(priority) {
   return REPORT_PRIORITY_TO_GLOBAL[priority] || priority || "Medium";
 }
 
+/**
+ * Convert old R2 public-bucket URLs (pub-*.r2.dev) to worker-served URLs.
+ * The path segment is identical between the two — only the domain differs.
+ */
+function fixR2PhotoUrl(url) {
+  if (!url) return url;
+  return url.replace(
+    /^https:\/\/pub-[a-f0-9]+\.r2\.dev\//,
+    "https://alp-r2-uploader.pandapotanandi.workers.dev/file/",
+  );
+}
+
+function resolvePhotoUrl(record) {
+  if (!record || typeof record !== "object") return "";
+  const raw =
+    record.fotoUrl ||
+    record.foto_url ||
+    record.photoUrl ||
+    record.photo_url ||
+    record.imageUrl ||
+    record.image_url ||
+    "";
+  return fixR2PhotoUrl(raw);
+}
+
 function normalizeFacilityRecord(record, meta) {
   const source = meta.source || "global";
   const key = meta.key || "";
@@ -229,7 +386,7 @@ function normalizeFacilityRecord(record, meta) {
     qty: Number(record.qty) || 0,
     condition: normalizeConditionForGlobal(record.condition || record.cond),
     lab: resolvedLab,
-    fotoUrl: record.fotoUrl || "",
+    fotoUrl: resolvePhotoUrl(record),
   };
 }
 
@@ -252,7 +409,7 @@ function normalizeReportRecord(record, meta) {
     priority,
     assignee: record.assignee || "Unassigned",
     reporter: record.reporter || "Unknown",
-    fotoUrl: record.fotoUrl || "",
+    fotoUrl: resolvePhotoUrl(record),
     updatedAt: record.updatedAt || record.tgl || "",
     createdAt: record.createdAt || record.tgl || "",
     overdue:
@@ -399,6 +556,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Firebase real-time listeners
   // All data is managed via UI and persisted to Firebase
   initFirebaseListeners();
+
+  // Render default sidebar lab list immediately (Firebase will update it)
+  renderSidebarLabList();
 });
 
 /* ===========================
@@ -510,33 +670,41 @@ function renderFacilities() {
 
   if (slice.length === 0) {
     body.innerHTML =
-      '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Tidak ada fasilitas ditemukan.</td></tr>';
+      '<div class="facility-empty">Tidak ada fasilitas ditemukan.</div>';
   } else {
     body.innerHTML = slice
       .map((f) => {
-        const isLabManaged = f._source === "lab_data";
+        const safeKey = escHtml(f._key);
+        const safeName = escHtml(f.name);
+        const safeLab = escHtml(f.lab);
+        const condClass = conditionBadgeClass(f.condition);
+        const condText = escHtml(f.condition);
+        const photo = f.fotoUrl
+          ? `<img src="${escHtml(f.fotoUrl)}" alt="${safeName}" class="fc-photo" onerror="this.parentElement.classList.add('no-photo');this.remove()" />`
+          : "";
+        const sourceTag =
+          f._source === "lab_data" ? "LAB" : "GLOBAL";
         return `
-      <tr>
-        <td style="color:var(--text-primary);font-weight:500">${escHtml(f.name)}</td>
-        <td>${f.qty || 0}</td>
-        <td><span class="badge ${conditionBadgeClass(f.condition)}">${escHtml(f.condition)}</span></td>
-        <td>${escHtml(f.lab)}</td>
-        <td class="action-links">
-          ${f.fotoUrl ? `<a href="${escHtml(f.fotoUrl)}" target="_blank" title="Lihat Foto">[Foto]</a> ` : ""}
-          ${
-            isLabManaged
-              ? `<a onclick='goToLab(${JSON.stringify(f.lab)})'>[Manage]</a><span> </span>`
-              : `<a onclick="editFacility('${escHtml(f._key)}')">[Edit]</a><span> </span>`
-          }
-          <a onclick="viewFacility('${escHtml(f._key)}')">[View]</a>
-          ${
-            isLabManaged
-              ? ""
-              : `<span> </span><a onclick="deleteFacility('${escHtml(f._key)}')" style="color:#f87171">[Del]</a>`
-          }
-        </td>
-      </tr>
-    `;
+      <div class="facility-card ${f.fotoUrl ? "" : "no-photo"}" onclick="viewFacility('${safeKey}')">
+        <div class="fc-photo-wrap">
+          ${photo}
+          <span class="fc-lab-badge">${safeLab}</span>
+          <span class="fc-source-badge ${f._source === "lab_data" ? "lab" : "global"}">${sourceTag}</span>
+        </div>
+        <div class="fc-body">
+          <div class="fc-name">${safeName}</div>
+          <div class="fc-meta">
+            <span class="fc-qty">Qty: <strong>${f.qty || 0}</strong></span>
+            <span class="badge ${condClass}">${condText}</span>
+          </div>
+          <div class="fc-actions">
+            <button type="button" class="fc-view-btn" onclick="event.stopPropagation(); viewFacility('${safeKey}')">Lihat Detail</button>
+            <button type="button" class="fc-del-btn" title="Hapus" onclick="event.stopPropagation(); deleteFacility('${safeKey}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
       })
       .join("");
   }
@@ -705,11 +873,16 @@ window.saveEditFacility = async function () {
 window.deleteFacility = async function (key) {
   const f = facilities.find((x) => x._key === key);
   if (!f) return;
-  if (f._source === "lab_data") {
-    showToast("Data inventaris ini dikelola dari halaman manajemen lab.");
+  if (!f._dbPath) {
+    showToast("Path data tidak diketahui, tidak dapat menghapus.");
     return;
   }
-  if (!confirm(`Hapus "${f.name}"? Tindakan ini tidak dapat dibatalkan.`))
+  const sourceLabel = f._source === "lab_data" ? "data lab" : "data global";
+  if (
+    !confirm(
+      `Hapus "${f.name}" (${f.lab}) dari ${sourceLabel}?\nTindakan ini tidak dapat dibatalkan.`,
+    )
+  )
     return;
 
   try {
@@ -736,15 +909,21 @@ window.viewFacility = function (key) {
       <div class="detail-item"><span>Quantity</span><span>${f.qty || 0}</span></div>
       <div class="detail-item"><span>Condition</span><span><span class="badge ${f.condition}">${escHtml(f.condition)}</span></span></div>
       <div class="detail-item"><span>Laboratory</span><span>${escHtml(f.lab)}</span></div>
-      ${
-        f.fotoUrl
-          ? `
-        <div class="detail-item" style="display:block">
-          <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Foto Fasilitas</span>
-          <img src="${escHtml(f.fotoUrl)}" alt="Foto Fasilitas" style="max-width:100%;border-radius:8px;margin-top:4px" />
-        </div>`
-          : ""
-      }
+      <div class="detail-item" style="display:block">
+        <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Foto Fasilitas</span>
+        ${
+          f.fotoUrl
+            ? `<img src="${escHtml(f.fotoUrl)}" alt="Foto Fasilitas"
+                style="max-width:100%;border-radius:8px;margin-top:4px;display:block"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+               <span style="display:none;color:var(--text-faint);font-size:13px">Foto tidak dapat dimuat.</span>
+               <a href="${escHtml(f.fotoUrl)}" target="_blank" rel="noopener noreferrer"
+                  style="display:inline-block;margin-top:8px;color:var(--accent-blue);font-size:13px">
+                 Buka foto ukuran penuh
+               </a>`
+            : `<span style="color:var(--text-faint);font-size:13px">Tidak ada foto untuk fasilitas ini.</span>`
+        }
+      </div>
     </div>
   `;
   openModal("viewFacilityModal");
@@ -753,17 +932,6 @@ window.viewFacility = function (key) {
 /* ===========================
    DAMAGE REPORTS PAGE
 =========================== */
-window.showPage = function (page) {
-  document
-    .querySelectorAll(".page-panel")
-    .forEach((panel) => panel.classList.add("hidden"));
-  const target = document.getElementById("page-" + page);
-  if (target) target.classList.remove("hidden");
-  document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
-    item.classList.toggle("active", item.dataset.page === page);
-  });
-};
-
 function renderDamageReports() {
   renderDamageReportStats();
   renderLabReportSummary();
@@ -836,28 +1004,41 @@ function renderUrgentReportList() {
     )
     .slice(0, 5);
 
-  container.innerHTML =
-    urgent
-      .map(
-        (report) => `
-    <div class="urgent-report-item">
-      <div class="urgent-report-top">
-        <div class="urgent-report-name">${escHtml(report.item)}</div>
-        <span class="badge ${priorityClass(report.priority)}">${escHtml(report.priority)}</span>
-      </div>
-      <div class="urgent-report-meta">
-        <span>${escHtml(report.lab)}</span>
-        <span>•</span>
-        <span>${escHtml(report.status)}</span>
-        <span>•</span>
-        <span>${report.overdue ? "Overdue" : "Updated " + escHtml(report.updatedAt || "")}</span>
-      </div>
-      <p class="urgent-report-description">${escHtml(report.description)}</p>
-    </div>
-  `,
-      )
-      .join("") ||
-    '<div class="urgent-report-item"><div class="urgent-report-name" style="color:var(--text-muted)">Tidak ada laporan mendesak.</div></div>';
+  if (!urgent.length) {
+    container.innerHTML =
+      '<div class="urgent-empty">Tidak ada laporan mendesak.</div>';
+    return;
+  }
+
+  container.innerHTML = urgent
+    .map((report) => {
+      const safeKey = escHtml(report._key);
+      const photo = report.fotoUrl
+        ? `<img src="${escHtml(report.fotoUrl)}" alt="${escHtml(report.item)}" class="uc-photo" onerror="this.parentElement.classList.add('no-photo');this.remove()" />`
+        : "";
+      const statusText = report.overdue
+        ? "Overdue"
+        : "Updated " + escHtml(report.updatedAt || "-");
+      return `
+      <div class="urgent-card priority-${priorityClass(report.priority)}" onclick="viewDamageReport('${safeKey}')">
+        <div class="uc-photo-wrap">
+          ${photo}
+          <span class="badge ${priorityClass(report.priority)} uc-prio-badge">${escHtml(report.priority)}</span>
+        </div>
+        <div class="uc-body">
+          <div class="uc-name">${escHtml(report.item)}</div>
+          <div class="uc-meta">
+            <span class="uc-lab">${escHtml(report.lab)}</span>
+            <span class="uc-dot">•</span>
+            <span>${escHtml(report.status)}</span>
+          </div>
+          <div class="uc-update ${report.overdue ? "overdue" : ""}">${statusText}</div>
+          <p class="uc-desc">${escHtml(report.description)}</p>
+          <button type="button" class="uc-view-btn" onclick="event.stopPropagation(); viewDamageReport('${safeKey}')">Lihat Detail</button>
+        </div>
+      </div>`;
+    })
+    .join("");
 }
 
 function renderDamageReportTable() {
@@ -897,8 +1078,6 @@ function renderDamageReportTable() {
         <td>${escHtml(report.updatedAt || "")}</td>
         <td class="action-links">
           <a onclick="viewDamageReport('${escHtml(report._key)}')">[View]</a>
-          <span> </span>
-          <a onclick="advanceDamageReport('${escHtml(report._key)}')">[Advance]</a>
         </td>
       </tr>
     `,
@@ -1022,6 +1201,19 @@ window.addDamageReport = async function () {
 window.viewDamageReport = function (key) {
   const report = damageReports.find((r) => r._key === key);
   if (!report) return;
+  const photoSection = report.fotoUrl
+    ? `
+      <div class="detail-item" style="display:block">
+        <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Foto Bukti Kerusakan</span>
+        <img src="${escHtml(report.fotoUrl)}" alt="Foto Kerusakan" style="max-width:100%;border-radius:8px;margin-top:4px" />
+        <a href="${escHtml(report.fotoUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:var(--accent-blue)">Buka foto ukuran penuh</a>
+      </div>`
+    : `
+      <div class="detail-item" style="display:block">
+        <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Foto Bukti Kerusakan</span>
+        <span style="display:block;color:var(--text-faint)">Tidak ada foto untuk laporan ini.</span>
+      </div>`;
+
   document.getElementById("viewDamageReportBody").innerHTML = `
     <div class="detail-list">
       <div class="detail-item"><span>Report ID</span><span>${escHtml(report.id || "")}</span></div>
@@ -1036,15 +1228,7 @@ window.viewDamageReport = function (key) {
         <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Description</span>
         <span style="display:block;color:var(--text-primary);font-weight:500;line-height:1.6">${escHtml(report.description)}</span>
       </div>
-      ${
-        report.fotoUrl
-          ? `
-        <div class="detail-item" style="display:block">
-          <span style="display:block;margin-bottom:8px;color:var(--text-muted)">Foto Bukti Kerusakan</span>
-          <img src="${escHtml(report.fotoUrl)}" alt="Foto Kerusakan" style="max-width:100%;border-radius:8px;margin-top:4px" />
-        </div>`
-          : ""
-      }
+      ${photoSection}
     </div>
   `;
   openModal("viewDamageReportModal");
@@ -1437,3 +1621,370 @@ function showFeedback() {
     showToast("Terima kasih atas feedback Anda!");
   }
 }
+
+/* ===========================
+   SIDEBAR — fully dynamic
+=========================== */
+const LAB_ICONS = {
+  "Computer Lab": `<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`,
+  "Physics Lab":  `<circle cx="12" cy="12" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="19" r="1"/><line x1="12" y1="13" x2="19" y2="6"/><line x1="12" y1="13" x2="5" y2="20"/>`,
+  "Chemistry Lab":`<path d="M10 2v7.31l-3.24 5.4A2 2 0 0 0 8.5 18h7a2 2 0 0 0 1.74-2.69L14 9.31V2"/><line x1="6.4" y1="15" x2="17.6" y2="15"/><line x1="8" y1="2" x2="16" y2="2"/>`,
+  "Biology Lab":  `<path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/>`,
+};
+const DEFAULT_ITEM_ICON = `<circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/>`;
+
+function renderSidebarLabList() {
+  // Lab List section is always rendered from LAB_NAMES
+  const sub = document.getElementById("labSubMenu");
+  if (!sub) return;
+  sub.innerHTML = LAB_NAMES.map((name) => {
+    const icon = LAB_ICONS[name] || DEFAULT_ITEM_ICON;
+    return `<a href="javascript:void(0)" class="nav-sub-item" onclick="goToLab('${escHtml(name)}')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;display:inline-block;flex-shrink:0">${icon}</svg>
+      ${escHtml(name)}
+    </a>`;
+  }).join("");
+}
+
+function renderSidebarCustomSections() {
+  // Render all custom sections AFTER the static nav items (before Developer)
+  const nav = document.querySelector(".sidebar-nav");
+  if (!nav) return;
+
+  // Remove previously rendered custom sections
+  nav.querySelectorAll(".nav-group.custom-section").forEach((el) => el.remove());
+
+  // Insert before Developer nav item
+  const devItem = document.getElementById("nav-developer");
+
+  devSections.forEach((section) => {
+    const sectionItems = devSectionItems[section._key] || [];
+    const subId = `customSub_${section._key}`;
+    const chevId = `customChev_${section._key}`;
+
+    const group = document.createElement("div");
+    group.className = "nav-group custom-section";
+    group.innerHTML = `
+      <button class="nav-group-header" onclick="toggleCustomSection('${section._key}')">
+        <div class="nav-group-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          </svg>
+          ${escHtml(section.name)}
+        </div>
+        <svg class="chevron" id="${chevId}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6,9 12,15 18,9"/>
+        </svg>
+      </button>
+      <div class="nav-sub open" id="${subId}">
+        ${sectionItems.length
+          ? sectionItems.map((item) => `
+              <a href="javascript:void(0)" class="nav-sub-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;display:inline-block;flex-shrink:0">
+                  ${DEFAULT_ITEM_ICON}
+                </svg>
+                ${escHtml(item.name)}
+              </a>`).join("")
+          : `<span class="nav-sub-empty">Belum ada item</span>`
+        }
+      </div>`;
+
+    nav.insertBefore(group, devItem);
+  });
+}
+
+window.toggleCustomSection = function (key) {
+  const sub = document.getElementById(`customSub_${key}`);
+  const chev = document.getElementById(`customChev_${key}`);
+  if (sub) sub.classList.toggle("open");
+  if (chev) chev.classList.toggle("open");
+};
+
+/* ===========================
+   DEVELOPER PAGE — sections system
+=========================== */
+let devSections = [];          // custom nav sections from Firebase
+let devSectionItems = {};      // { sectionKey: [ items ] }
+
+function renderDevLabGrid() {
+  const grid = document.getElementById("devLabGrid");
+  if (!grid) return;
+
+  // Built-in labs (non-deletable)
+  const builtinCards = DEFAULT_LAB_NAMES.map((name) => `
+    <div class="dev-card builtin">
+      <div class="dev-card-icon blue">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      </div>
+      <div class="dev-card-body">
+        <div class="dev-card-name">${escHtml(name)}</div>
+        <div class="dev-card-meta">Built-in · tidak dapat dihapus</div>
+      </div>
+      <span class="dev-builtin-badge">DEFAULT</span>
+    </div>`).join("");
+
+  // Custom labs (deletable)
+  const customCards = devLabs.map((lab) => `
+    <div class="dev-card custom">
+      <div class="dev-card-icon cyan">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      </div>
+      <div class="dev-card-body">
+        <div class="dev-card-name">${escHtml(lab.name)}</div>
+        <div class="dev-card-meta">${escHtml(lab.teacher || "—")} · ${escHtml(lab.email || "—")}</div>
+      </div>
+      <button class="dev-del-btn" title="Hapus lab" onclick="deleteDevLab('${escHtml(lab._key)}','${escHtml(lab.name)}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
+    </div>`).join("");
+
+  grid.innerHTML = builtinCards + (customCards || '<div class="dev-empty">Belum ada lab kustom. Klik "+ Tambah Lab" untuk menambah.</div>');
+}
+
+function renderDevRoomGrid() {
+  const grid = document.getElementById("devRoomGrid");
+  if (!grid) return;
+
+  if (!devRooms.length) {
+    grid.innerHTML = '<div class="dev-empty">Belum ada room. Klik "+ Tambah Room" untuk menambah.</div>';
+    return;
+  }
+
+  grid.innerHTML = devRooms.map((room) => `
+    <div class="dev-card custom">
+      <div class="dev-card-icon purple">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <div class="dev-card-body">
+        <div class="dev-card-name">${escHtml(room.name)}</div>
+        <div class="dev-card-meta">${room.capacity ? `Kapasitas: ${room.capacity}` : "—"}${room.note ? ` · ${escHtml(room.note)}` : ""}</div>
+      </div>
+      <button class="dev-del-btn" title="Hapus room" onclick="deleteDevRoom('${escHtml(room._key)}','${escHtml(room.name)}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
+    </div>`).join("");
+}
+
+window.saveNewLab = async function () {
+  const name = (document.getElementById("newLabName")?.value || "").trim();
+  const teacher = (document.getElementById("newLabTeacher")?.value || "").trim();
+  const email = (document.getElementById("newLabEmail")?.value || "").trim();
+  const password = (document.getElementById("newLabPassword")?.value || "").trim();
+  const errBox = document.getElementById("addLabErr");
+
+  if (!name) {
+    errBox.textContent = "Nama lab wajib diisi.";
+    errBox.style.display = "block";
+    return;
+  }
+  if (LAB_NAMES.map((l) => l.toLowerCase()).includes(name.toLowerCase())) {
+    errBox.textContent = "Nama lab sudah ada.";
+    errBox.style.display = "block";
+    return;
+  }
+  errBox.style.display = "none";
+
+  try {
+    await db.ref("dev_config/labs").push({ name, teacher, email, password, createdAt: Date.now() });
+    showToast(`Lab "${name}" berhasil ditambahkan.`);
+    closeModal("addLabModal");
+    document.getElementById("newLabName").value = "";
+    document.getElementById("newLabTeacher").value = "";
+    document.getElementById("newLabEmail").value = "";
+    document.getElementById("newLabPassword").value = "";
+  } catch (err) {
+    errBox.textContent = "Gagal menyimpan: " + err.message;
+    errBox.style.display = "block";
+  }
+};
+
+window.deleteDevLab = async function (key, name) {
+  if (!confirm(`Hapus lab "${name}"?\nData inventaris/laporan lab ini di Firebase tidak ikut terhapus.`)) return;
+  try {
+    await db.ref("dev_config/labs/" + key).remove();
+    showToast(`Lab "${name}" dihapus.`);
+  } catch (err) {
+    showToast("Gagal menghapus: " + err.message);
+  }
+};
+
+window.saveNewRoom = async function () {
+  const name = (document.getElementById("newRoomName")?.value || "").trim();
+  const capacity = document.getElementById("newRoomCapacity")?.value || "";
+  const note = (document.getElementById("newRoomNote")?.value || "").trim();
+  const errBox = document.getElementById("addRoomErr");
+
+  if (!name) {
+    errBox.textContent = "Nama room wajib diisi.";
+    errBox.style.display = "block";
+    return;
+  }
+  errBox.style.display = "none";
+
+  try {
+    await db.ref("dev_config/rooms").push({ name, capacity: Number(capacity) || 0, note, createdAt: Date.now() });
+    showToast(`Room "${name}" berhasil ditambahkan.`);
+    closeModal("addRoomModal");
+    document.getElementById("newRoomName").value = "";
+    document.getElementById("newRoomCapacity").value = "";
+    document.getElementById("newRoomNote").value = "";
+  } catch (err) {
+    errBox.textContent = "Gagal menyimpan: " + err.message;
+    errBox.style.display = "block";
+  }
+};
+
+window.deleteDevRoom = async function (key, name) {
+  if (!confirm(`Hapus room "${name}"?`)) return;
+  try {
+    await db.ref("dev_config/rooms/" + key).remove();
+    showToast(`Room "${name}" dihapus.`);
+  } catch (err) {
+    showToast("Gagal menghapus: " + err.message);
+  }
+};
+
+/* ===========================
+   DEVELOPER — custom sections
+=========================== */
+function initDevSectionsListener() {
+  db.ref("dev_config/sections").on("value", (snap) => {
+    devSections = [];
+    snap.forEach((child) => {
+      devSections.push({ _key: child.key, ...child.val() });
+    });
+    renderDevSectionsPage();
+    renderSidebarCustomSections();
+  });
+}
+
+function initDevSectionItemsListener() {
+  db.ref("dev_config/section_items").on("value", (snap) => {
+    devSectionItems = {};
+    snap.forEach((sectionSnap) => {
+      const items = [];
+      sectionSnap.forEach((itemSnap) => {
+        items.push({ _key: itemSnap.key, ...itemSnap.val() });
+      });
+      devSectionItems[sectionSnap.key] = items;
+    });
+    renderDevSectionsPage();
+    renderSidebarCustomSections();
+  });
+}
+
+function renderDevSectionsPage() {
+  const container = document.getElementById("devCustomSections");
+  if (!container) return;
+
+  if (!devSections.length) {
+    container.innerHTML = `<div class="dev-section" style="border:1px dashed var(--border);background:transparent;text-align:center;color:var(--text-muted);padding:32px">
+      Belum ada section kustom. Klik "+ Tambah Section" untuk membuat list baru di sidebar.
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = devSections.map((section) => {
+    const items = devSectionItems[section._key] || [];
+    const safeKey = escHtml(section._key);
+    const safeName = escHtml(section.name);
+
+    const itemCards = items.length
+      ? items.map((item) => `
+          <div class="dev-card custom">
+            <div class="dev-card-icon purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/></svg>
+            </div>
+            <div class="dev-card-body">
+              <div class="dev-card-name">${escHtml(item.name)}</div>
+              ${item.note ? `<div class="dev-card-meta">${escHtml(item.note)}</div>` : ""}
+            </div>
+            <button class="dev-del-btn" title="Hapus item" onclick="deleteDevSectionItem('${safeKey}','${escHtml(item._key)}','${escHtml(item.name)}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>`).join("")
+      : `<div class="dev-empty">Belum ada item. Klik "+ Tambah Item".</div>`;
+
+    return `
+      <div class="dev-section" id="devSection_${safeKey}">
+        <div class="dev-section-head">
+          <div class="dev-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            ${safeName}
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="dev-add-btn" onclick="openAddSectionItem('${safeKey}','${safeName}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Tambah Item
+            </button>
+            <button class="dev-del-section-btn" onclick="deleteDevSection('${safeKey}','${safeName}')" title="Hapus section ini">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              Hapus Section
+            </button>
+          </div>
+        </div>
+        <div class="dev-grid">${itemCards}</div>
+      </div>`;
+  }).join("");
+}
+
+window.openAddSectionItem = function (sectionKey, sectionName) {
+  document.getElementById("addItemSectionKey").value = sectionKey;
+  document.getElementById("addItemSectionLabel").textContent = sectionName;
+  document.getElementById("newSectionItemName").value = "";
+  document.getElementById("newSectionItemNote").value = "";
+  const err = document.getElementById("addSectionItemErr");
+  if (err) { err.style.display = "none"; err.textContent = ""; }
+  openModal("addSectionItemModal");
+};
+
+window.saveNewSectionItem = async function () {
+  const sectionKey = document.getElementById("addItemSectionKey")?.value;
+  const name = (document.getElementById("newSectionItemName")?.value || "").trim();
+  const note = (document.getElementById("newSectionItemNote")?.value || "").trim();
+  const errBox = document.getElementById("addSectionItemErr");
+  if (!name) { errBox.textContent = "Nama item wajib diisi."; errBox.style.display = "block"; return; }
+  errBox.style.display = "none";
+  try {
+    await db.ref(`dev_config/section_items/${sectionKey}`).push({ name, note, createdAt: Date.now() });
+    showToast(`Item "${name}" ditambahkan.`);
+    closeModal("addSectionItemModal");
+  } catch (err) {
+    errBox.textContent = "Gagal: " + err.message; errBox.style.display = "block";
+  }
+};
+
+window.deleteDevSectionItem = async function (sectionKey, itemKey, name) {
+  if (!confirm(`Hapus item "${name}"?`)) return;
+  try {
+    await db.ref(`dev_config/section_items/${sectionKey}/${itemKey}`).remove();
+    showToast(`Item "${name}" dihapus.`);
+  } catch (err) { showToast("Gagal: " + err.message); }
+};
+
+window.saveNewSection = async function () {
+  const name = (document.getElementById("newSectionName")?.value || "").trim();
+  const errBox = document.getElementById("addSectionErr");
+  if (!name) { errBox.textContent = "Nama section wajib diisi."; errBox.style.display = "block"; return; }
+  if (devSections.some((s) => s.name.toLowerCase() === name.toLowerCase())) {
+    errBox.textContent = "Section dengan nama ini sudah ada."; errBox.style.display = "block"; return;
+  }
+  errBox.style.display = "none";
+  try {
+    await db.ref("dev_config/sections").push({ name, createdAt: Date.now() });
+    showToast(`Section "${name}" dibuat.`);
+    closeModal("addSectionModal");
+    document.getElementById("newSectionName").value = "";
+  } catch (err) { errBox.textContent = "Gagal: " + err.message; errBox.style.display = "block"; }
+};
+
+window.deleteDevSection = async function (key, name) {
+  if (!confirm(`Hapus section "${name}" beserta semua item-nya?`)) return;
+  try {
+    await Promise.all([
+      db.ref(`dev_config/sections/${key}`).remove(),
+      db.ref(`dev_config/section_items/${key}`).remove(),
+    ]);
+    showToast(`Section "${name}" dihapus.`);
+  } catch (err) { showToast("Gagal: " + err.message); }
+};

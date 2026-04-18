@@ -100,59 +100,13 @@ let data = {
   pinjam: []
 };
 
+const DEFAULT_CATEGORIES = ["Elektronik", "Peralatan", "Furnitur", "Bahan"];
+let categories = [...DEFAULT_CATEGORIES];
+
 // Pagination & Navigation State
 let invPage = 1;
 const INV_PER_PAGE = 10;
 let weekOffset = 0;
-let inventorySyncAttempted = false;
-let inventorySyncInProgress = false;
-
-const GLOBAL_TO_LAB_CONDITION = {
-  Excellent: "Sangat Baik",
-  Good: "Baik",
-  Fair: "Cukup",
-  Poor: "Rusak",
-};
-
-function normalizeConditionForLab(condition) {
-  return GLOBAL_TO_LAB_CONDITION[condition] || condition || "Baik";
-}
-
-function inferCategoryFromName(name) {
-  const lower = String(name || "").toLowerCase();
-  if (/gelas|beaker|erlenmeyer|tabung|pipet|buret|flask|labu/.test(lower)) {
-    return "Gelas";
-  }
-  if (/mikroskop|osiloskop|multimeter|sensor|meter|alat ukur/.test(lower)) {
-    return "Ukur";
-  }
-  if (/kursi|meja|lemari|rak/.test(lower)) {
-    return "Furniture";
-  }
-  return "Peralatan";
-}
-
-function buildLabItemCode(name, usedCodes) {
-  const prefix = lab
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-
-  let idx = usedCodes.size + 1;
-  let candidate = `${prefix}-${String(idx).padStart(3, "0")}`;
-  while (usedCodes.has(candidate.toLowerCase())) {
-    idx += 1;
-    candidate = `${prefix}-${String(idx).padStart(3, "0")}`;
-  }
-  usedCodes.add(candidate.toLowerCase());
-  return candidate;
-}
-
-function stripMeta(record) {
-  const { _key, _dbPath, _source, ...rest } = record || {};
-  return rest;
-}
 
 function writeActivity(type, icon, text) {
   const entry = {
@@ -171,87 +125,28 @@ function writeActivity(type, icon, text) {
   });
 }
 
-function syncMissingInventoryFromGlobal() {
-  if (inventorySyncAttempted || inventorySyncInProgress) return;
-  inventorySyncInProgress = true;
-
-  const existingNameSet = new Set(
-    data.items
-      .map((item) => String(item?.name || "").trim().toLowerCase())
-      .filter(Boolean),
-  );
-  const usedCodes = new Set(
-    data.items
-      .map((item) => String(item?.code || "").trim().toLowerCase())
-      .filter(Boolean),
-  );
-
-  db.ref("fasilitas")
-    .once("value")
-    .then((snap) => {
-      const additions = [];
-      const today = new Date().toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-
-      snap.forEach((child) => {
-        const row = child.val() || {};
-        if (String(row.lab || "").trim() !== lab) return;
-
-        const name = String(row.name || "").trim();
-        if (!name) return;
-
-        const normalizedName = name.toLowerCase();
-        if (existingNameSet.has(normalizedName)) return;
-
-        const code = String(row.code || "").trim();
-        const resolvedCode = code
-          ? code
-          : buildLabItemCode(name, usedCodes);
-        if (code) usedCodes.add(code.toLowerCase());
-
-        additions.push({
-          code: resolvedCode,
-          name,
-          kat: row.kat || inferCategoryFromName(name),
-          qty: Number(row.qty) || 1,
-          cond: normalizeConditionForLab(row.condition || row.cond),
-          note: row.note || "Sinkron dari data ringkasan",
-          checked: row.checked || today,
-        });
-
-        existingNameSet.add(normalizedName);
-      });
-
-      if (!additions.length) return;
-
-      const merged = [...data.items.map(stripMeta), ...additions];
-      return db
-        .ref(`lab_data/${lab}/items`)
-        .set(merged)
-        .then(() => {
-          writeActivity(
-            "update",
-            "I",
-            `Sinkron inventaris ${lab}: +${additions.length} item dari data ringkasan`,
-          );
-          showToast(`Inventaris disinkronkan: +${additions.length} item.`);
-        });
-    })
-    .catch((err) => {
-      console.error("Global inventory sync failed:", err);
-    })
-    .finally(() => {
-      inventorySyncInProgress = false;
-      inventorySyncAttempted = true;
-    });
-}
-
-
 // Initialize Firebase listeners for this lab
 function initLabDataListeners() {
+  // Listen to categories
+  db.ref(`lab_data/${lab}/categories`).on(
+    "value",
+    (snap) => {
+      if (snap.exists()) {
+        const val = snap.val();
+        categories = Array.isArray(val) ? val.filter(Boolean) : Object.values(val || {}).filter(Boolean);
+        if (!categories.length) categories = [...DEFAULT_CATEGORIES];
+      } else {
+        categories = [...DEFAULT_CATEGORIES];
+      }
+      renderKategoriDropdowns();
+      renderKategoriList();
+      filterInventaris();
+    },
+    (err) => {
+      console.error("Firebase categories error:", err);
+    },
+  );
+
   // Listen to inventory items
   db.ref(`lab_data/${lab}/items`).on(
     'value',
@@ -262,10 +157,11 @@ function initLabDataListeners() {
           data.items.push({ _key: child.key, ...child.val() });
         });
       }
-      syncMissingInventoryFromGlobal();
       populateLaporanItemOptions();
       renderDashboard();
       renderInventaris();
+      renderProfil();
+      renderKategoriList();
     },
     (err) => {
       console.error('Firebase items error:', err);
@@ -285,6 +181,7 @@ function initLabDataListeners() {
       }
       renderDashboard();
       renderJadwal();
+      renderProfil();
     },
     (err) => {
       console.error('Firebase jadwal error:', err);
@@ -304,6 +201,7 @@ function initLabDataListeners() {
       }
       renderDashboard();
       renderLaporan();
+      renderProfil();
     },
     (err) => {
       console.error('Firebase laporan error:', err);
@@ -322,6 +220,7 @@ function initLabDataListeners() {
         });
       }
       renderPinjam();
+      renderProfil();
     },
     (err) => {
       console.error('Firebase pinjam error:', err);
@@ -454,6 +353,8 @@ function showPage(page) {
     profil: "Profil Saya",
   };
   setText("topbarPage", labels[page] || page);
+
+  if (page === "profil") renderProfil();
 
   // Close sidebar on mobile
   if (window.innerWidth <= 800) {
@@ -759,13 +660,20 @@ function renderInventaris() {
 }
 
 function filterInventaris() {
-  const q = document.getElementById("invSearch").value.toLowerCase();
-  const cond = document.getElementById("invFilterCond").value;
-  const kat = document.getElementById("invFilterKat").value;
+  const searchEl = document.getElementById("invSearch");
+  const condEl = document.getElementById("invFilterCond");
+  const katEl = document.getElementById("invFilterKat");
+  const body = document.getElementById("invBody");
+  if (!body) return;
+
+  const q = (searchEl?.value || "").toLowerCase();
+  const cond = condEl?.value || "";
+  const kat = katEl?.value || "";
 
   const filtered = data.items.filter(
     (i) =>
-      (i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q)) &&
+      ((i.name || "").toLowerCase().includes(q) ||
+        (i.code || "").toLowerCase().includes(q)) &&
       (!cond || i.cond === cond) &&
       (!kat || i.kat === kat),
   );
@@ -784,44 +692,73 @@ function filterInventaris() {
     Rusak: "danger",
   };
 
-  document.getElementById("invBody").innerHTML =
-    slice
+  if (slice.length === 0) {
+    body.innerHTML =
+      '<div class="inv-empty">Tidak ada alat yang cocok dengan filter.</div>';
+  } else {
+    body.innerHTML = slice
       .map((item) => {
         const realIdx = data.items.indexOf(item);
-        // Build kondisi cell: jika ada units, tampilkan summary per kondisi
-        let condCell;
-        if (item.units && item.units.length > 0) {
-          const u = item.units;
-          const sb = u.filter((x) => x.cond === "Sangat Baik").length;
-          const b = u.filter((x) => x.cond === "Baik").length;
-          const c = u.filter((x) => x.cond === "Cukup").length;
-          const r = u.filter((x) => x.cond === "Rusak").length;
-          const parts = [];
-          if (sb) parts.push(`<span class="badge ok">${sb} Sangat Baik</span>`);
-          if (b) parts.push(`<span class="badge good">${b} Baik</span>`);
-          if (c) parts.push(`<span class="badge warn">${c} Cukup</span>`);
-          if (r) parts.push(`<span class="badge danger">${r} Rusak</span>`);
-          condCell = `<div style="display:flex;flex-wrap:wrap;gap:4px">${parts.join("")}</div>`;
-        } else {
-          condCell = `<span class="badge ${condMap[item.cond] || "gray"}">${item.cond}</span>`;
-        }
+        const safeName = (item.name || "").replace(/'/g, "\\'");
+
+        let condHtml;
         const hasUnits = item.units && item.units.length > 0;
-        return `<tr>
-      <td style="font-family:monospace;font-size:11px;color:var(--text-dim)">${item.code}</td>
-      <td><strong style="color:var(--text)">${item.name}</strong>${item.note ? '<br><span style="font-size:10px;color:var(--text-dim)">' + item.note + "</span>" : ""}</td>
-      <td>${item.kat}</td>
-      <td style="font-weight:600">${item.qty}</td>
-      <td>${condCell}</td>
-      <td style="font-size:11px">${item.checked}</td>
-      <td>
-        ${hasUnits ? `<button class="tbl-btn info" onclick="openUnitModal(${realIdx})">📋 Detail Unit</button>` : ""}
-        <button class="tbl-btn" onclick="openEditItem(${realIdx})">Edit</button>
-        <button class="tbl-btn danger" onclick="deleteItem(${realIdx})">Hapus</button>
-      </td>
-    </tr>`;
+        if (hasUnits) {
+          const u = item.units;
+          const counts = {
+            ok: u.filter((x) => x.cond === "Sangat Baik").length,
+            good: u.filter((x) => x.cond === "Baik").length,
+            warn: u.filter((x) => x.cond === "Cukup").length,
+            danger: u.filter((x) => x.cond === "Rusak").length,
+          };
+          const parts = [];
+          if (counts.ok) parts.push(`<span class="badge ok">${counts.ok} SB</span>`);
+          if (counts.good) parts.push(`<span class="badge good">${counts.good} B</span>`);
+          if (counts.warn) parts.push(`<span class="badge warn">${counts.warn} C</span>`);
+          if (counts.danger) parts.push(`<span class="badge danger">${counts.danger} R</span>`);
+          condHtml = parts.join(" ");
+        } else {
+          condHtml = `<span class="badge ${condMap[item.cond] || "gray"}">${item.cond || "-"}</span>`;
+        }
+
+        const photo = item.fotoUrl
+          ? `<img src="${item.fotoUrl}" alt="${item.name}" class="ic-photo" onerror="this.parentElement.classList.add('no-photo');this.remove()" />`
+          : "";
+
+        return `
+          <div class="inv-card ${item.fotoUrl ? "" : "no-photo"}" onclick="${
+            item.fotoUrl
+              ? `openPhotoLightbox('${item.fotoUrl}','${safeName}')`
+              : `openEditItem(${realIdx})`
+          }">
+            <div class="ic-photo-wrap">
+              ${photo}
+              <span class="ic-kat-badge">${item.kat || "-"}</span>
+              ${hasUnits ? `<span class="ic-unit-badge" title="Ada detail unit">● UNIT</span>` : ""}
+            </div>
+            <div class="ic-body">
+              <div class="ic-top">
+                <div class="ic-name" title="${item.name}">${item.name}</div>
+                <span class="ic-code">${item.code || "-"}</span>
+              </div>
+              ${item.note ? `<div class="ic-note">${item.note}</div>` : ""}
+              <div class="ic-meta">
+                <span class="ic-qty">Qty: <strong>${item.qty || 0}</strong></span>
+                <span class="ic-cond">${condHtml}</span>
+              </div>
+              <div class="ic-checked">Cek terakhir: ${item.checked || "-"}</div>
+              <div class="ic-actions">
+                ${hasUnits ? `<button type="button" class="ic-btn info" onclick="event.stopPropagation(); openUnitModal(${realIdx})">Detail Unit</button>` : ""}
+                <button type="button" class="ic-btn" onclick="event.stopPropagation(); openEditItem(${realIdx})">Edit</button>
+                <button type="button" class="ic-btn danger" onclick="event.stopPropagation(); deleteItem(${realIdx})" title="Hapus">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>`;
       })
-      .join("") ||
-    '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:20px">Tidak ada data</td></tr>';
+      .join("");
+  }
 
   // Pagination
   let pgHtml = "";
@@ -836,40 +773,88 @@ function goInvPage(p) {
   filterInventaris();
 }
 
-function addItem() {
-  const name = document.getElementById("addItemName").value.trim();
-  if (!name) {
-    showToast("Nama alat wajib diisi.");
-    return;
+async function addItem() {
+  const errBox = document.getElementById("addItemErr");
+  if (errBox) {
+    errBox.style.display = "none";
+    errBox.textContent = "";
   }
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  data.items.push({
-    code: document.getElementById("addItemCode").value.trim() || autoCode(),
-    name,
-    kat: document.getElementById("addItemKat").value,
-    qty: parseInt(document.getElementById("addItemQty").value) || 1,
-    cond: (
-      document.querySelector('input[name="addItemCondR"]:checked') || {
-        value: "Baik",
+
+  try {
+    const name = document.getElementById("addItemName").value.trim();
+    if (!name) {
+      showToast("Nama alat wajib diisi.");
+      return;
+    }
+    if (typeof uploadToR2 !== "function") {
+      throw new Error("uploadToR2 tidak terdefinisi — r2-service.js gagal load.");
+    }
+
+    const btn = document.querySelector("#addItemModal .btn-save");
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.prevHtml = btn.innerHTML;
+      btn.innerHTML = "Menyimpan…";
+    }
+
+    try {
+      const photoFile = document.getElementById("addItemPhoto")?.files?.[0];
+      let fotoUrl = "";
+      if (photoFile) {
+        showToast("Mengunggah foto ke R2…");
+        fotoUrl = await uploadToR2(photoFile, "fasilitas");
       }
-    ).value,
-    note: document.getElementById("addItemNote").value.trim(),
-    checked: today,
-  });
-  saveData();
-  renderInventaris();
-  renderDashboard();
-  closeModal("addItemModal");
-  showToast("Alat berhasil ditambahkan.");
-  writeActivity("add", "I", `Item inventaris ditambahkan: ${name}`);
-  document.getElementById("addItemName").value = "";
-  document.getElementById("addItemCode").value = "";
-  document.getElementById("addItemNote").value = "";
-  document.getElementById("addItemQty").value = "1";
+
+      const today = new Date().toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      data.items.push({
+        code: document.getElementById("addItemCode").value.trim() || autoCode(),
+        name,
+        kat: document.getElementById("addItemKat").value,
+        qty: parseInt(document.getElementById("addItemQty").value) || 1,
+        cond: (
+          document.querySelector('input[name="addItemCondR"]:checked') || {
+            value: "Baik",
+          }
+        ).value,
+        note: document.getElementById("addItemNote").value.trim(),
+        checked: today,
+        fotoUrl,
+      });
+      await saveData();
+      renderInventaris();
+      renderDashboard();
+      closeModal("addItemModal");
+      showToast("Alat berhasil ditambahkan.");
+      writeActivity("add", "I", `Item inventaris ditambahkan: ${name}`);
+      document.getElementById("addItemName").value = "";
+      document.getElementById("addItemCode").value = "";
+      document.getElementById("addItemNote").value = "";
+      document.getElementById("addItemQty").value = "1";
+      removePhoto(
+        "addItemPhoto",
+        "addItemPhotoPreview",
+        "addItemPhotoPlaceholder",
+        "addItemRemovePhoto",
+      );
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.prevHtml || "Simpan Alat";
+      }
+    }
+  } catch (err) {
+    console.error("[addItem] ERROR:", err);
+    const msg = err?.message || String(err) || "Gagal menambahkan alat";
+    if (errBox) {
+      errBox.textContent = "⚠ " + msg;
+      errBox.style.display = "block";
+    }
+    showToast("⚠ Gagal: " + msg);
+  }
 }
 
 function autoCode() {
@@ -887,51 +872,136 @@ function openEditItem(idx) {
   document.getElementById("editItemName").value = item.name;
   document.getElementById("editItemCode").value = item.code;
   document.getElementById("editItemQty").value = item.qty;
-  document.getElementById("editItemNote").value = item.note;
+  document.getElementById("editItemNote").value = item.note || "";
   setSelect("editItemKat", item.kat);
-  // Set radio button kondisi
   document.querySelectorAll('input[name="editItemCondR"]').forEach((r) => {
     r.checked = r.value === item.cond;
   });
+
+  // Load existing photo preview
+  const fileInput = document.getElementById("editItemPhoto");
+  const preview = document.getElementById("editItemPhotoPreview");
+  const placeholder = document.getElementById("editItemPhotoPlaceholder");
+  const removeBtn = document.getElementById("editItemRemovePhoto");
+  if (fileInput) fileInput.value = "";
+  if (item.fotoUrl) {
+    preview.src = item.fotoUrl;
+    preview.style.display = "block";
+    if (placeholder) placeholder.style.display = "none";
+    if (removeBtn) removeBtn.style.display = "block";
+  } else {
+    preview.src = "";
+    preview.style.display = "none";
+    if (placeholder) placeholder.style.display = "flex";
+    if (removeBtn) removeBtn.style.display = "none";
+  }
+  const errBox = document.getElementById("editItemErr");
+  if (errBox) {
+    errBox.style.display = "none";
+    errBox.textContent = "";
+  }
   openModal("editItemModal");
 }
 
-function saveEditItem() {
-  const idx = parseInt(document.getElementById("editItemIdx").value);
-  const prevName = data.items[idx]?.name || "";
-  const name = document.getElementById("editItemName").value.trim();
-  if (!name) {
-    showToast("Nama alat wajib diisi.");
-    return;
+async function saveEditItem() {
+  const errBox = document.getElementById("editItemErr");
+  if (errBox) {
+    errBox.style.display = "none";
+    errBox.textContent = "";
   }
-  const condR = document.querySelector('input[name="editItemCondR"]:checked');
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  data.items[idx] = {
-    ...data.items[idx],
-    name,
-    code: document.getElementById("editItemCode").value.trim(),
-    kat: document.getElementById("editItemKat").value,
-    qty: parseInt(document.getElementById("editItemQty").value) || 1,
-    cond: condR ? condR.value : data.items[idx].cond,
-    note: document.getElementById("editItemNote").value.trim(),
-    checked: today,
-  };
-  saveData();
-  renderInventaris();
-  renderDashboard();
-  closeModal("editItemModal");
-  showToast("Data alat diperbarui.");
-  writeActivity(
-    "update",
-    "I",
-    `Item inventaris diperbarui: ${prevName || name}${
-      prevName && prevName !== name ? ` -> ${name}` : ""
-    }`,
-  );
+
+  try {
+    const idx = parseInt(document.getElementById("editItemIdx").value);
+    const prevItem = data.items[idx] || {};
+    const prevName = prevItem.name || "";
+    const name = document.getElementById("editItemName").value.trim();
+    if (!name) {
+      showToast("Nama alat wajib diisi.");
+      return;
+    }
+
+    const btn = document.querySelector("#editItemModal .btn-save");
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.prevHtml = btn.innerHTML;
+      btn.innerHTML = "Menyimpan…";
+    }
+
+    try {
+      const photoFile = document.getElementById("editItemPhoto")?.files?.[0];
+      const previewEl = document.getElementById("editItemPhotoPreview");
+      const photoCleared =
+        !photoFile && previewEl && previewEl.style.display === "none";
+
+      let fotoUrl = prevItem.fotoUrl || "";
+      if (photoFile) {
+        if (typeof uploadToR2 !== "function") {
+          throw new Error("uploadToR2 tidak terdefinisi.");
+        }
+        showToast("Mengunggah foto ke R2…");
+        fotoUrl = await uploadToR2(photoFile, "fasilitas");
+      } else if (photoCleared) {
+        fotoUrl = "";
+      }
+
+      const condR = document.querySelector(
+        'input[name="editItemCondR"]:checked',
+      );
+      const today = new Date().toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      data.items[idx] = {
+        ...prevItem,
+        name,
+        code: document.getElementById("editItemCode").value.trim(),
+        kat: document.getElementById("editItemKat").value,
+        qty: parseInt(document.getElementById("editItemQty").value) || 1,
+        cond: condR ? condR.value : prevItem.cond,
+        note: document.getElementById("editItemNote").value.trim(),
+        checked: today,
+        fotoUrl,
+      };
+      await saveData();
+      renderInventaris();
+      renderDashboard();
+      closeModal("editItemModal");
+      showToast("Data alat diperbarui.");
+      writeActivity(
+        "update",
+        "I",
+        `Item inventaris diperbarui: ${prevName || name}${
+          prevName && prevName !== name ? ` -> ${name}` : ""
+        }`,
+      );
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.prevHtml || "Simpan Perubahan";
+      }
+    }
+  } catch (err) {
+    console.error("[saveEditItem] ERROR:", err);
+    const msg = err?.message || String(err) || "Gagal menyimpan";
+    if (errBox) {
+      errBox.textContent = "⚠ " + msg;
+      errBox.style.display = "block";
+    }
+    showToast("⚠ Gagal: " + msg);
+  }
+}
+
+function openPhotoLightbox(url, title) {
+  const modal = document.getElementById("photoLightbox");
+  const img = document.getElementById("photoLightboxImg");
+  const titleEl = document.getElementById("photoLightboxTitle");
+  const linkEl = document.getElementById("photoLightboxLink");
+  if (!modal || !img) return;
+  img.src = url;
+  if (titleEl) titleEl.textContent = title || "Foto Alat";
+  if (linkEl) linkEl.href = url;
+  modal.classList.add("open");
 }
 
 function deleteItem(idx) {
@@ -1178,6 +1248,7 @@ function filterLaporan() {
         </div>
       </td>
       <td>
+        <button class="tbl-btn info" onclick="viewLaporan(${realIdx})">Lihat</button>
         ${l.status !== "Selesai" ? `<button class="tbl-btn" onclick="advanceLaporan(${realIdx})">▶ Lanjut</button>` : '<span style="font-size:11px;color:var(--green)">✓ Selesai</span>'}
         <button class="tbl-btn danger" onclick="deleteLaporan(${realIdx})">Hapus</button>
       </td>
@@ -1225,31 +1296,126 @@ function populateLaporanItemOptions() {
   }
 }
 
-function addLaporan() {
-  const nama = document.getElementById("addLapNama").value;
-  const desk = document.getElementById("addLapDesk").value.trim();
-  if (!nama || !desk) {
-    showToast("Pilih alat dari inventaris dan isi deskripsi wajib.");
-    return;
+async function addLaporan() {
+  console.log("[addLaporan] START");
+  const errBox = document.getElementById("addLapErr");
+  if (errBox) {
+    errBox.style.display = "none";
+    errBox.textContent = "";
   }
-  const prioR = document.querySelector('input[name="lapPrioR"]:checked');
-  const newId = "LAP-" + String(data.laporan.length + 1).padStart(3, "0");
-  data.laporan.unshift({
-    id: newId,
-    nama,
-    desk,
-    tgl: document.getElementById("addLapTgl").value,
-    prioritas: prioR ? prioR.value : "Sedang",
-    status: "Belum Ditangani",
-  });
-  saveData();
-  renderLaporan();
-  renderDashboard();
-  closeModal("addLaporanModal");
-  showToast("Laporan berhasil dikirim.");
-  writeActivity("warn", "R", `Laporan kerusakan baru: ${nama}`);
-  document.getElementById("addLapNama").value = "";
-  document.getElementById("addLapDesk").value = "";
+
+  try {
+    const nama = document.getElementById("addLapNama").value;
+    const desk = document.getElementById("addLapDesk").value.trim();
+    if (!nama || !desk) {
+      showToast("Pilih alat dari inventaris dan isi deskripsi wajib.");
+      return;
+    }
+
+    if (typeof uploadToR2 !== "function") {
+      throw new Error(
+        "uploadToR2 tidak terdefinisi — script r2-service.js mungkin gagal load.",
+      );
+    }
+
+    const btn = document.querySelector("#addLaporanModal .btn-save");
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.prevHtml = btn.innerHTML;
+      btn.innerHTML = "Menyimpan…";
+    }
+
+    try {
+      const photoFile = document.getElementById("addLapPhoto")?.files?.[0];
+      console.log("[addLaporan] photoFile:", photoFile);
+      let fotoUrl = "";
+      if (photoFile) {
+        showToast("Mengunggah foto ke R2…");
+        console.log("[addLaporan] calling uploadToR2...");
+        fotoUrl = await uploadToR2(photoFile, "laporan");
+        console.log("[addLaporan] R2 returned URL:", fotoUrl);
+      } else {
+        console.log("[addLaporan] no photo file selected");
+      }
+
+      const prioR = document.querySelector('input[name="lapPrioR"]:checked');
+      const newId = "LAP-" + String(data.laporan.length + 1).padStart(3, "0");
+      data.laporan.unshift({
+        id: newId,
+        nama,
+        desk,
+        lokasi: document.getElementById("addLapLokasi").value.trim(),
+        tgl: document.getElementById("addLapTgl").value,
+        prioritas: prioR ? prioR.value : "Sedang",
+        status: "Belum Ditangani",
+        fotoUrl,
+        reporter: teacher || "Unknown",
+        createdAt: new Date().toISOString(),
+      });
+      console.log("[addLaporan] saving to Firebase...");
+      await saveData();
+      console.log("[addLaporan] DONE");
+      renderLaporan();
+      renderDashboard();
+      closeModal("addLaporanModal");
+      showToast("Laporan berhasil dikirim.");
+      writeActivity("warn", "R", `Laporan kerusakan baru: ${nama}`);
+      document.getElementById("addLapNama").value = "";
+      document.getElementById("addLapDesk").value = "";
+      document.getElementById("addLapLokasi").value = "";
+      removePhoto(
+        "addLapPhoto",
+        "addLapPhotoPreview",
+        "addLapPhotoPlaceholder",
+        "addLapRemovePhoto",
+      );
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.prevHtml || "Kirim Laporan";
+      }
+    }
+  } catch (err) {
+    console.error("[addLaporan] ERROR:", err);
+    const msg = err?.message || String(err) || "Upload gagal";
+    if (errBox) {
+      errBox.textContent = "⚠ " + msg;
+      errBox.style.display = "block";
+    }
+    showToast("⚠ Gagal: " + msg);
+  }
+}
+
+function viewLaporan(idx) {
+  const l = data.laporan[idx];
+  if (!l) return;
+  const body = document.getElementById("viewLapBody");
+  if (!body) return;
+  const escHtml = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    })[c]);
+  const photo = l.fotoUrl
+    ? `<img src="${escHtml(l.fotoUrl)}" alt="Foto Kerusakan" style="max-width:100%;border-radius:8px;margin-top:4px" />
+       <a href="${escHtml(l.fotoUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:var(--accent-blue)">Buka foto ukuran penuh</a>`
+    : `<span style="color:var(--text-dim)">Tidak ada foto untuk laporan ini.</span>`;
+  body.innerHTML = `
+    <div style="display:grid;gap:10px;font-size:13px">
+      <div><strong>ID:</strong> ${escHtml(l.id)}</div>
+      <div><strong>Nama Alat:</strong> ${escHtml(l.nama)}</div>
+      <div><strong>Lokasi:</strong> ${escHtml(l.lokasi || "-")}</div>
+      <div><strong>Deskripsi:</strong> ${escHtml(l.desk)}</div>
+      <div><strong>Tanggal:</strong> ${escHtml(l.tgl || "-")}</div>
+      <div><strong>Prioritas:</strong> ${escHtml(l.prioritas)}</div>
+      <div><strong>Status:</strong> ${escHtml(l.status)}</div>
+      <div><strong>Reporter:</strong> ${escHtml(l.reporter || "Unknown")}</div>
+      <div style="margin-top:8px"><strong>Foto Bukti Kerusakan</strong><br>${photo}</div>
+    </div>`;
+  openModal("viewLapModal");
 }
 
 function advanceLaporan(idx) {
@@ -1397,24 +1563,132 @@ function deletePinjam(idx) {
 }
 
 /* ===========================
+   KATEGORI
+=========================== */
+function renderKategoriDropdowns() {
+  const targets = [
+    { id: "addItemKat", placeholder: null },
+    { id: "editItemKat", placeholder: null },
+    { id: "invFilterKat", placeholder: "Semua Kategori" },
+  ];
+  targets.forEach(({ id, placeholder }) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    const opts = [];
+    if (placeholder) opts.push(`<option value="">${placeholder}</option>`);
+    categories.forEach((k) => {
+      opts.push(`<option value="${k}">${k}</option>`);
+    });
+    sel.innerHTML = opts.join("");
+    if (prev && categories.includes(prev)) sel.value = prev;
+  });
+}
+
+function renderKategoriList() {
+  const list = document.getElementById("katList");
+  if (!list) return;
+  if (!categories.length) {
+    list.innerHTML = '<div class="kat-empty">Belum ada kategori.</div>';
+    return;
+  }
+  list.innerHTML = categories
+    .map((k, idx) => {
+      const inUse = data.items.some((it) => it.kat === k);
+      const safe = String(k).replace(/'/g, "\\'");
+      return `
+        <div class="kat-row">
+          <span class="kat-name">${k}</span>
+          ${inUse ? `<span class="kat-badge">dipakai</span>` : ""}
+          <button class="kat-del" type="button" title="Hapus" onclick="deleteKategori(${idx})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        </div>`;
+    })
+    .join("");
+}
+
+function saveCategoriesToFirebase() {
+  return db.ref(`lab_data/${lab}/categories`).set(categories);
+}
+
+async function addKategori() {
+  const input = document.getElementById("newKatInput");
+  if (!input) return;
+  const name = input.value.trim();
+  if (!name) {
+    showToast("Nama kategori wajib diisi.");
+    return;
+  }
+  if (categories.some((k) => k.toLowerCase() === name.toLowerCase())) {
+    showToast("Kategori sudah ada.");
+    return;
+  }
+  categories = [...categories, name];
+  input.value = "";
+  try {
+    await saveCategoriesToFirebase();
+    writeActivity("update", "K", `Kategori ditambahkan: ${name}`);
+    showToast(`Kategori "${name}" ditambahkan.`);
+  } catch (err) {
+    showToast("Gagal menyimpan kategori.");
+    console.error(err);
+  }
+}
+
+async function deleteKategori(idx) {
+  const name = categories[idx];
+  if (!name) return;
+  const inUse = data.items.some((it) => it.kat === name);
+  const msg = inUse
+    ? `Kategori "${name}" masih dipakai oleh beberapa alat. Tetap hapus?\n(Alat yang terpengaruh tidak akan berubah.)`
+    : `Hapus kategori "${name}"?`;
+  if (!confirm(msg)) return;
+  categories = categories.filter((_, i) => i !== idx);
+  try {
+    await saveCategoriesToFirebase();
+    writeActivity("update", "K", `Kategori dihapus: ${name}`);
+    showToast(`Kategori "${name}" dihapus.`);
+  } catch (err) {
+    showToast("Gagal menghapus kategori.");
+    console.error(err);
+  }
+}
+
+/* ===========================
    PROFIL
 =========================== */
 function renderProfil() {
-  const initials = teacher
+  if (!document.getElementById("profilName")) return;
+
+  const displayName = teacher || "Pengelola Lab";
+  const initials = displayName
     .split(" ")
     .map((w) => w[0])
+    .filter(Boolean)
     .join("")
     .slice(0, 2)
-    .toUpperCase();
+    .toUpperCase() || "?";
   const emoji = LAB_EMOJIS[lab] || "🏫";
-  const now = new Date().toLocaleString("id-ID");
+
+  let lastLoginText = "—";
+  try {
+    const user = typeof auth !== "undefined" ? auth.currentUser : null;
+    const ts = user && user.metadata && user.metadata.lastSignInTime;
+    if (ts) {
+      lastLoginText = new Date(ts).toLocaleString("id-ID", {
+        dateStyle: "long",
+        timeStyle: "short",
+      });
+    }
+  } catch (_) {}
 
   setText("profilAvatar", initials);
-  setText("profilName", teacher);
-  setText("profilEmail", email);
-  setText("profilLab", lab);
-  setText("profilLabBadge", emoji + " " + lab);
-  setText("profilLastLogin", now);
+  setText("profilName", displayName);
+  setText("profilEmail", email || "—");
+  setText("profilLab", lab || "—");
+  setText("profilLabBadge", emoji + " " + (lab || "-"));
+  setText("profilLastLogin", lastLoginText);
 
   setText("pstatItem", data.items.length);
   setText("pstatLaporan", data.laporan.length);

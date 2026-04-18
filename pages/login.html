@@ -1,172 +1,693 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – LabFlow Pro</title>
-  <meta name="description" content="Masuk ke portal manajemen laboratorium LabFlow Pro" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/login.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login – Lab Report</title>
+    <meta
+      name="description"
+      content="Masuk ke portal manajemen laboratorium Lab Report"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/login.css" />
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-overlay"></div>
+    <canvas id="bgCanvas"></canvas>
 
-  <!-- Animated Background -->
-  <div class="bg-overlay"></div>
-  <canvas id="bgCanvas"></canvas>
-
-  <!-- Header -->
-  <header class="login-header">
-    <div class="header-logo">
-      <div class="logo-icon-sm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
-        </svg>
+    <!-- Header -->
+    <header class="login-header">
+      <div class="header-logo">
+        <div class="logo-icon-sm">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"
+            />
+          </svg>
+        </div>
+        <span>LAB REPORT</span>
       </div>
-      <span>LABFLOW PRO</span>
-    </div>
-  </header>
+    </header>
 
-  <!-- Login Card -->
-  <div class="login-wrap">
-    <div class="login-card" id="loginCard">
-
-      <!-- Icon -->
-      <div class="card-icon">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 2v7.31l-3.24 5.4A2 2 0 0 0 8.5 18h7a2 2 0 0 0 1.74-2.69L14 9.31V2"/><line x1="6.4" y1="15" x2="17.6" y2="15"/><line x1="8" y1="2" x2="16" y2="2"/>
-        </svg>
-      </div>
-
-      <h1 class="card-title" id="cardTitle">Portal Sistem Lab</h1>
-      <p class="card-subtitle">Silakan masuk ke akun laboratorium Anda</p>
-      <div class="lab-chip" id="labChip" style="display:none"></div>
-
-      <!-- Alert Box -->
-      <div class="alert-box" id="alertBox" style="display:none">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span id="alertMsg">Email atau kata sandi salah.</span>
-      </div>
-
-      <!-- Form -->
-      <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
-
-        <div class="field-group">
-          <label for="emailInput">SUREL</label>
-          <div class="input-wrap">
-            <span class="input-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-              </svg>
-            </span>
-            <input type="email" id="emailInput" placeholder="nama@lab.labflow.id" autocomplete="username" />
-          </div>
+    <!-- Login Card -->
+    <div class="login-wrap">
+      <div class="login-card" id="loginCard">
+        <!-- Icon (shared across panels) -->
+        <div class="card-icon">
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M10 2v7.31l-3.24 5.4A2 2 0 0 0 8.5 18h7a2 2 0 0 0 1.74-2.69L14 9.31V2"
+            />
+            <line x1="6.4" y1="15" x2="17.6" y2="15" />
+            <line x1="8" y1="2" x2="16" y2="2" />
+          </svg>
         </div>
 
-        <div class="field-group">
-          <div class="label-row">
-            <label for="passInput">KATA SANDI</label>
-            <button type="button" class="forgot-btn" onclick="showForgotHint()">LUPA SANDI?</button>
+        <!-- ===== LOGIN PANEL ===== -->
+        <div id="loginPanel">
+          <h1 class="card-title" id="cardTitle">Portal Sistem Lab</h1>
+          <p class="card-subtitle">Silakan masuk ke akun laboratorium Anda</p>
+          <div class="lab-chip" id="labChip" style="display: none"></div>
+
+          <!-- Error Alert -->
+          <div class="alert-box" id="alertBox" style="display: none">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span id="alertMsg">Email atau kata sandi salah.</span>
           </div>
-          <div class="input-wrap">
-            <span class="input-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </span>
-            <input type="password" id="passInput" placeholder="••••••••" autocomplete="current-password" />
-            <button type="button" class="eye-btn" id="eyeBtn" onclick="togglePass()">
-              <svg id="eyeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
+
+          <!-- Info Box (email belum diverifikasi) -->
+          <div class="info-box" id="infoBox" style="display: none">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="flex-shrink: 0; margin-top: 1px"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <div>
+              <span id="infoMsg"></span>
+              <button
+                type="button"
+                class="resend-link"
+                id="resendBtn"
+                onclick="resendVerificationEmail()"
+                style="display: none"
+              >
+                Kirim Ulang
+              </button>
+            </div>
+          </div>
+
+          <!-- Login Form -->
+          <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+            <div class="field-group">
+              <label for="emailInput">SUREL</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </span>
+                <input
+                  type="email"
+                  id="emailInput"
+                  placeholder="nama@lab.labflow.id"
+                  autocomplete="username"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="label-row">
+                <label for="passInput">KATA SANDI</label>
+                <button
+                  type="button"
+                  class="forgot-btn"
+                  onclick="showForgotHint()"
+                >
+                  LUPA SANDI?
+                </button>
+              </div>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
+                <input
+                  type="password"
+                  id="passInput"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="eye-btn"
+                  id="eyeBtn"
+                  onclick="togglePass()"
+                >
+                  <svg
+                    id="eyeIcon"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="loginBtn">
+              <span id="btnText">MASUK KE SISTEM</span>
+              <span id="btnArrow">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12,5 19,12 12,19" />
+                </svg>
+              </span>
+              <span id="btnSpinner" style="display: none">
+                <svg
+                  class="spin"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+              </span>
             </button>
+          </form>
+
+          <!-- Switch to Register -->
+          <div class="auth-switch">
+            <p>
+              Belum punya akun?
+              <button
+                type="button"
+                class="switch-btn"
+                onclick="showRegisterPanel()"
+              >
+                Daftar di sini
+              </button>
+            </p>
+          </div>
+
+          <!-- Footer Links -->
+          <div class="card-footer">
+            <p>BUTUH BANTUAN AKSES?</p>
+            <div class="footer-links">
+              <a href="#">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                Hubungi IT
+              </a>
+              <a href="#">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Keamanan
+              </a>
+            </div>
           </div>
         </div>
+        <!-- END LOGIN PANEL -->
 
+        <!-- ===== REGISTER PANEL ===== -->
+        <div id="registerPanel" style="display: none">
+          <h1 class="card-title">Buat Akun Baru</h1>
+          <p class="card-subtitle">Daftar untuk mengelola laboratorium Anda</p>
 
-        <button type="submit" class="btn-login" id="loginBtn">
-          <span id="btnText">MASUK KE SISTEM</span>
-          <span id="btnArrow">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
+          <!-- Error Alert -->
+          <div class="alert-box" id="regAlertBox" style="display: none">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-          </span>
-          <span id="btnSpinner" style="display:none">
-            <svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-            </svg>
-          </span>
-        </button>
+            <span id="regAlertMsg"></span>
+          </div>
 
-      </form>
+          <form id="registerForm" onsubmit="handleRegister(event)" novalidate>
+            <!-- Nama -->
+            <div class="field-group">
+              <label for="regNameInput">NAMA LENGKAP</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="regNameInput"
+                  placeholder="Nama Anda"
+                  autocomplete="name"
+                />
+              </div>
+            </div>
 
-      <!-- Footer Links -->
-      <div class="card-footer">
-        <p>BUTUH BANTUAN AKSES?</p>
-        <div class="footer-links">
-          <a href="#">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            Hubungi IT
-          </a>
-          <a href="#">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Keamanan
-          </a>
+            <!-- Laboratorium -->
+            <div class="field-group">
+              <label for="regLabInput">LABORATORIUM</label>
+              <div class="input-wrap select-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9,22 9,12 15,12 15,22" />
+                  </svg>
+                </span>
+                <select id="regLabInput">
+                  <option value="">-- Pilih Lab --</option>
+                  <option>Computer Lab</option>
+                  <option>Physics Lab</option>
+                  <option>Chemistry Lab</option>
+                  <option>Biology Lab</option>
+                </select>
+                <span class="select-chevron">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="6,9 12,15 18,9" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="field-group">
+              <label for="regEmailInput">SUREL</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </span>
+                <input
+                  type="email"
+                  id="regEmailInput"
+                  placeholder="nama@email.com"
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+
+            <!-- Kata Sandi -->
+            <div class="field-group">
+              <label for="regPassInput">KATA SANDI</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
+                <input
+                  type="password"
+                  id="regPassInput"
+                  placeholder="Min. 6 karakter"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="eye-btn" onclick="toggleRegPass()">
+                  <svg
+                    id="regEyeIcon"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Konfirmasi Kata Sandi -->
+            <div class="field-group">
+              <label for="regConfirmInput">KONFIRMASI SANDI</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
+                <input
+                  type="password"
+                  id="regConfirmInput"
+                  placeholder="Ulangi kata sandi"
+                  autocomplete="new-password"
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="regBtn">
+              <span id="regBtnText">DAFTAR SEKARANG</span>
+              <span id="regBtnSpinner" style="display: none">
+                <svg
+                  class="spin"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+              </span>
+            </button>
+          </form>
+
+          <!-- Switch to Login -->
+          <div class="auth-switch">
+            <p>
+              Sudah punya akun?
+              <button
+                type="button"
+                class="switch-btn"
+                onclick="showLoginPanel()"
+              >
+                Masuk di sini
+              </button>
+            </p>
+          </div>
         </div>
+        <!-- END REGISTER PANEL -->
+
+        <!-- ===== VERIFY PANEL ===== -->
+        <div id="verifyPanel" style="display: none">
+          <div class="verify-icon">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+
+          <h1 class="card-title">Cek Email Anda</h1>
+          <p class="card-subtitle">Link verifikasi telah dikirim ke:</p>
+          <p class="verify-email" id="verifyEmailDisplay"></p>
+
+          <div class="verify-info">
+            <p>
+              Buka email Anda dan klik link verifikasi. Setelah terverifikasi,
+              kembali ke sini untuk masuk.
+            </p>
+          </div>
+
+          <button
+            class="btn-login"
+            style="margin-top: 24px"
+            onclick="showLoginPanel()"
+          >
+            <span>KEMBALI KE LOGIN</span>
+            <span style="display: flex; align-items: center">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12,5 19,12 12,19" />
+              </svg>
+            </span>
+          </button>
+
+          <div class="auth-switch" style="margin-top: 16px">
+            <p>
+              Tidak menerima email?
+              <button
+                type="button"
+                class="switch-btn"
+                onclick="resendVerificationFromPanel()"
+              >
+                Kirim Ulang
+              </button>
+            </p>
+          </div>
+        </div>
+        <!-- END VERIFY PANEL -->
       </div>
 
-    </div>
-
-    <!-- Hint Card (credential list) -->
-    <div class="hint-card" id="hintCard">
-      <div class="hint-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-        Kredensial Demo per Lab
+      <!-- Hint Card (credential list) -->
+      <div class="hint-card" id="hintCard">
+        <div class="hint-header">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Kredensial Demo per Lab
+        </div>
+        <table class="hint-table">
+          <thead>
+            <tr>
+              <th>Laboratorium</th>
+              <th>Email</th>
+              <th>Kata Sandi</th>
+              <th>Guru</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Computer Lab</td>
+              <td>budi@labflow.id</td>
+              <td>komputer123</td>
+              <td>Budi Santoso</td>
+            </tr>
+            <tr>
+              <td>Physics Lab</td>
+              <td>sari@labflow.id</td>
+              <td>fisika123</td>
+              <td>Dr. Sari Dewi</td>
+            </tr>
+            <tr>
+              <td>Chemistry Lab</td>
+              <td>andi@labflow.id</td>
+              <td>kimia123</td>
+              <td>Andi Pratama</td>
+            </tr>
+            <tr>
+              <td>Biology Lab</td>
+              <td>rita@labflow.id</td>
+              <td>biologi123</td>
+              <td>Rita Wulandari</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table class="hint-table">
-        <thead>
-          <tr><th>Laboratorium</th><th>Email</th><th>Kata Sandi</th><th>Guru</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Computer Lab</td><td>budi@labflow.id</td><td>komputer123</td><td>Budi Santoso</td></tr>
-          <tr><td>Physics Lab</td><td>sari@labflow.id</td><td>fisika123</td><td>Dr. Sari Dewi</td></tr>
-          <tr><td>Chemistry Lab</td><td>andi@labflow.id</td><td>kimia123</td><td>Andi Pratama</td></tr>
-          <tr><td>Biology Lab</td><td>rita@labflow.id</td><td>biologi123</td><td>Rita Wulandari</td></tr>
-        </tbody>
-      </table>
     </div>
 
-  </div>
+    <!-- Bottom Bar -->
+    <footer class="login-footer">
+      <div class="dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <div class="status-badge">
+        SYSTEM STATUS: <span class="status-ok">OPERATIONAL</span>
+      </div>
+    </footer>
 
-  <!-- Bottom Bar -->
-  <footer class="login-footer">
-    <div class="dots">
-      <span class="dot active"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
+    <div class="footer-legal">
+      <span>© 2024 LAB REPORT. ALL RIGHTS RESERVED.</span>
+      <div class="legal-links">
+        <a href="#">Kebijakan Privasi</a>
+        <a href="#">Protokol Keamanan</a>
+      </div>
     </div>
-    <div class="status-badge">
-      SYSTEM STATUS: <span class="status-ok">OPERATIONAL</span>
-    </div>
-  </footer>
 
-  <div class="footer-legal">
-    <span>© 2024 LABFLOW PRO. ALL RIGHTS RESERVED.</span>
-    <div class="legal-links">
-      <a href="#">Kebijakan Privasi</a>
-      <a href="#">Protokol Keamanan</a>
-    </div>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/login.js"></script>
-</body>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/login.js"></script>
+  </body>
 </html>

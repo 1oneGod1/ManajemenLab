@@ -117,8 +117,8 @@ async function uploadToR2(file, folder) {
     throw new Error(result.error || 'Upload gagal (server error)');
   }
 
-  // publicUrl prefers the R2 public domain; workerFileUrl is the fallback
-  return result.publicUrl || result.workerFileUrl;
+  // workerFileUrl is used — R2 public bucket access is served via Worker
+  return result.workerFileUrl || result.publicUrl;
 }
 
 /**

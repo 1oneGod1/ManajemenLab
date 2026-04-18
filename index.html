@@ -17,10 +17,11 @@
     <div class="sidebar-logo">
       <div class="logo-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+          <img src="https://static.wixstatic.com/media/07639e_83549958900b44ad9fea05d99e380dd5~mv2.png/v1/fill/w_559,h_512,al_c/07639e_83549958900b44ad9fea05d99e380dd5~mv2.png" alt="Logo Lab Report" class="logo-image" />
+          <!-- <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/> -->
         </svg>
       </div>
-      <span class="logo-text">LabFlow Pro</span>
+      <span class="logo-text">Lab Report</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -84,6 +85,13 @@
         </svg>
         Settings
       </a>
+
+      <a href="#" class="nav-item nav-item-dev" id="nav-developer" data-page="developer" onclick="event.preventDefault(); showPage('developer')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/>
+        </svg>
+        Developer
+      </a>
     </nav>
   </aside>
 
@@ -97,24 +105,6 @@
           <span></span><span></span><span></span>
         </button>
         <h1 class="system-title">Integrated Laboratory Management System</h1>
-      </div>
-      <div class="topbar-right">
-        <button class="btn-add-facility" id="addFacilityBtn" onclick="openModal('addFacilityModal')">
-          + Add New Facility
-        </button>
-        <div class="user-avatar-wrapper" onclick="toggleUserMenu()">
-          <div class="user-avatar">EC</div>
-          <span class="user-name">Dr. Emily Carter</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6,9 12,15 18,9"/>
-          </svg>
-          <div class="user-dropdown" id="userDropdown">
-            <a href="#">Profile</a>
-            <a href="#">Account Settings</a>
-            <hr/>
-            <a href="#" style="color:#f87171">Logout</a>
-          </div>
-        </div>
       </div>
     </header>
 
@@ -161,20 +151,9 @@
             </div>
           </div>
 
-          <table class="facilities-table" id="facilitiesTable">
-            <thead>
-              <tr>
-                <th>NAME</th>
-                <th>QUANTITY</th>
-                <th>CONDITION</th>
-                <th>LAB</th>
-                <th>ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="facilitiesBody">
-              <!-- filled by JS -->
-            </tbody>
-          </table>
+          <div class="facility-grid" id="facilitiesBody">
+            <!-- filled by JS -->
+          </div>
 
           <!-- Pagination -->
           <div class="pagination" id="pagination">
@@ -193,7 +172,6 @@
           <h2 class="page-heading">Damage Reports</h2>
           <p class="page-subheading">Cross-lab overview with a quick summary, urgent queue, and detailed action table.</p>
         </div>
-        <button class="btn-add-facility" onclick="openModal('addDamageReportModal')">+ Create Report</button>
       </div>
 
       <div class="stats-grid reports-stats-grid">
@@ -484,6 +462,209 @@
       </div>
     </main>
 
+    <!-- ===== PAGE: DEVELOPER ===== -->
+    <main class="page-content page-panel hidden" id="page-developer">
+      <div class="dev-header">
+        <div>
+          <h2 class="page-heading" style="margin:0">Developer Panel</h2>
+          <p class="dev-sub">Kelola struktur sidebar — lab, section kustom, dan item di dalamnya</p>
+        </div>
+        <span class="dev-badge">DEV MODE</span>
+      </div>
+
+      <!-- BUILT-IN: LAB LIST -->
+      <div class="dev-section">
+        <div class="dev-section-head">
+          <div class="dev-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Laboratory List <span style="font-size:10px;font-weight:500;color:var(--text-muted);margin-left:6px">BUILT-IN</span>
+          </div>
+          <button class="dev-add-btn" onclick="openModal('addLabModal')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Lab
+          </button>
+        </div>
+        <div class="dev-grid" id="devLabGrid"></div>
+      </div>
+
+      <!-- CUSTOM SECTIONS -->
+      <div class="dev-section-header-row">
+        <div class="dev-section-title" style="font-size:14px;font-weight:700;color:var(--text-primary)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Custom Sections
+        </div>
+        <button class="dev-add-btn" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#c4b5fd" onclick="openModal('addSectionModal')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Tambah Section Baru
+        </button>
+      </div>
+      <p style="color:var(--text-muted);font-size:12.5px;margin-bottom:16px">Section baru akan muncul sebagai grup di sidebar — isi dengan item bebas sesuai kebutuhan.</p>
+
+      <!-- Dynamic sections rendered here -->
+      <div id="devCustomSections"></div>
+
+    </main>
+
+  </div>
+
+  <!-- Modal: Add Lab -->
+  <div class="modal-overlay" id="addLabModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(59,130,246,.15)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div><h3>Tambah Laboratorium</h3><p class="modal-subtitle">Lab baru akan muncul di sidebar dan bisa diakses via login</p></div>
+        <button class="modal-close" onclick="closeModal('addLabModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>NAMA LAB <span style="color:#f87171">*</span></label>
+          <input id="newLabName" placeholder="Contoh: Electronics Lab" />
+        </div>
+        <div class="form-group">
+          <label>NAMA GURU / PENGELOLA</label>
+          <input id="newLabTeacher" placeholder="Contoh: Budi Santoso" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>EMAIL DEMO LOGIN</label>
+            <input id="newLabEmail" placeholder="guru@labflow.id" />
+          </div>
+          <div class="form-group">
+            <label>PASSWORD DEMO</label>
+            <input id="newLabPassword" placeholder="min 6 karakter" />
+          </div>
+        </div>
+        <div id="addLabErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('addLabModal')">Batal</button>
+        <button class="btn-save" type="button" onclick="saveNewLab()">Simpan Lab</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Room -->
+  <div class="modal-overlay" id="addRoomModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:460px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(6,182,212,.15)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div><h3>Tambah Room</h3><p class="modal-subtitle">Tambahkan ruangan ke daftar room</p></div>
+        <button class="modal-close" onclick="closeModal('addRoomModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>NAMA ROOM <span style="color:#f87171">*</span></label>
+          <input id="newRoomName" placeholder="Contoh: Ruang A101" />
+        </div>
+        <div class="form-group">
+          <label>KAPASITAS (opsional)</label>
+          <input id="newRoomCapacity" type="number" min="1" placeholder="Contoh: 30" />
+        </div>
+        <div class="form-group">
+          <label>KETERANGAN (opsional)</label>
+          <input id="newRoomNote" placeholder="Contoh: Lantai 2, Gedung B" />
+        </div>
+        <div id="addRoomErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('addRoomModal')">Batal</button>
+        <button class="btn-save" type="button" onclick="saveNewRoom()">Simpan Room</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Section -->
+  <div class="modal-overlay" id="addSectionModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(167,139,250,.15)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div><h3>Tambah Section Baru</h3><p class="modal-subtitle">Section akan muncul sebagai grup di sidebar</p></div>
+        <button class="modal-close" onclick="closeModal('addSectionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>NAMA SECTION <span style="color:#f87171">*</span></label>
+          <input id="newSectionName" placeholder="Contoh: Room List, Equipment List, Staff List..." onkeydown="if(event.key==='Enter') saveNewSection()" />
+        </div>
+        <div id="addSectionErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('addSectionModal')">Batal</button>
+        <button class="btn-save" type="button" onclick="saveNewSection()">Buat Section</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Item to Section -->
+  <div class="modal-overlay" id="addSectionItemModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(6,182,212,.15)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/></svg>
+        </div>
+        <div>
+          <h3>Tambah Item</h3>
+          <p class="modal-subtitle">ke section: <strong id="addItemSectionLabel">—</strong></p>
+        </div>
+        <button class="modal-close" onclick="closeModal('addSectionItemModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="addItemSectionKey" />
+        <div class="form-group">
+          <label>NAMA ITEM <span style="color:#f87171">*</span></label>
+          <input id="newSectionItemName" placeholder="Contoh: Ruang A101" onkeydown="if(event.key==='Enter') saveNewSectionItem()" />
+        </div>
+        <div class="form-group">
+          <label>KETERANGAN (opsional)</label>
+          <input id="newSectionItemNote" placeholder="Contoh: Lantai 2, kapasitas 30" />
+        </div>
+        <div id="addSectionItemErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('addSectionItemModal')">Batal</button>
+        <button class="btn-save" type="button" onclick="saveNewSectionItem()">Simpan Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Developer Login -->
+  <div class="modal-overlay" id="devLoginModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(167,139,250,.18)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Developer Access</h3>
+          <p class="modal-subtitle">Masuk dengan akun developer untuk melanjutkan</p>
+        </div>
+        <button class="modal-close" onclick="closeDeveloperLogin()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>EMAIL</label>
+          <input type="email" id="devLoginEmail" placeholder="developer@email.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label>PASSWORD</label>
+          <input type="password" id="devLoginPassword" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') submitDeveloperLogin()" />
+        </div>
+        <div id="devLoginErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeDeveloperLogin()">Batal</button>
+        <button class="btn-save" id="devLoginBtn" type="button" onclick="submitDeveloperLogin()">Masuk</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal: Change Password -->
