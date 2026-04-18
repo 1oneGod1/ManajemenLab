@@ -7,7 +7,6 @@
 
 let roomKey = sessionStorage.getItem("loggedInRoomKey");
 let roomName = sessionStorage.getItem("loggedInRoomName");
-let roomLab = sessionStorage.getItem("loggedInRoomLab");
 let roomEmail = sessionStorage.getItem("loggedInRoomEmail");
 let roomData = null;
 
@@ -65,9 +64,7 @@ async function ensureRoomSession() {
 
     // Keep session in sync
     roomName = roomData.name || roomName;
-    roomLab = roomData.lab || roomLab;
     sessionStorage.setItem("loggedInRoomName", roomName || "");
-    sessionStorage.setItem("loggedInRoomLab", roomLab || "");
   } catch (err) {
     throw err;
   }
@@ -75,12 +72,9 @@ async function ensureRoomSession() {
 
 function renderHeader() {
   const name = roomName || "Ruangan";
-  const lab = roomLab || "—";
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
   set("sidebarRoomName", name);
   set("topbarRoom", name);
-  set("topbarLab", lab);
-  set("roomBadge", lab.toUpperCase());
   set("roomEmail", roomEmail || "—");
 
   const initialsMatch = name.match(/\d+/);

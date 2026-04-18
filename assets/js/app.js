@@ -2032,11 +2032,7 @@ function initRoomsListener() {
     snap.forEach((child) => {
       roomsList.push({ _key: child.key, ...child.val() });
     });
-    roomsList.sort((a, b) => {
-      const la = (a.lab || "").localeCompare(b.lab || "");
-      if (la !== 0) return la;
-      return (a.name || "").localeCompare(b.name || "");
-    });
+    roomsList.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     renderRoomsAdmin();
     renderSidebarRoomList();
   });
@@ -2060,7 +2056,7 @@ function renderRoomsAdmin() {
       </div>
       <div class="dev-card-body">
         <div class="dev-card-name">${escHtml(r.name || "(tanpa nama)")}</div>
-        <div class="dev-card-meta">${escHtml(r.lab || "—")} · ${escHtml(r.email || "—")}</div>
+        <div class="dev-card-meta">${escHtml(r.email || "—")}</div>
         ${r.description ? `<div class="dev-card-meta" style="margin-top:2px;color:var(--text-muted)">${escHtml(r.description)}</div>` : ""}
       </div>
       <div class="dev-card-actions">
@@ -2081,7 +2077,6 @@ window.openAddRoomModal = function () {
   document.getElementById("roomSaveBtn").textContent = "Buat Ruangan";
   document.getElementById("roomEditKey").value = "";
   document.getElementById("roomName").value = "";
-  document.getElementById("roomLab").value = "";
   document.getElementById("roomEmail").value = "";
   document.getElementById("roomPassword").value = "";
   document.getElementById("roomDescription").value = "";
@@ -2101,7 +2096,6 @@ window.openEditRoomModal = function (key) {
   document.getElementById("roomSaveBtn").textContent = "Simpan Perubahan";
   document.getElementById("roomEditKey").value = key;
   document.getElementById("roomName").value = r.name || "";
-  document.getElementById("roomLab").value = r.lab || "";
   document.getElementById("roomEmail").value = r.email || "";
   document.getElementById("roomEmail").disabled = true;
   document.getElementById("roomPassword").value = "";
@@ -2129,13 +2123,11 @@ window.saveRoom = async function () {
 
   const key = document.getElementById("roomEditKey").value;
   const name = document.getElementById("roomName").value.trim();
-  const labVal = document.getElementById("roomLab").value.trim();
   const emailVal = document.getElementById("roomEmail").value.trim();
   const password = document.getElementById("roomPassword").value;
   const description = document.getElementById("roomDescription").value.trim();
 
   if (!name) return showErr("Nama ruangan wajib diisi.");
-  if (!labVal) return showErr("Lab parent wajib dipilih.");
   if (!emailVal) return showErr("Email login wajib diisi.");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) return showErr("Format email tidak valid.");
 
@@ -2147,10 +2139,8 @@ window.saveRoom = async function () {
   try {
     if (key) {
       // EDIT: only update RTDB (email & password immutable here)
-      const existing = roomsList.find((r) => r._key === key);
       await db.ref(`rooms/${key}`).update({
         name,
-        lab: labVal,
         description,
         updatedAt: Date.now(),
       });
@@ -2181,7 +2171,6 @@ window.saveRoom = async function () {
 
       await db.ref("rooms").push({
         name,
-        lab: labVal,
         email: emailVal,
         uid,
         description,
@@ -2225,7 +2214,7 @@ function renderSidebarRoomList() {
 
   const itemsHtml = roomsList.length
     ? roomsList.map((r) => `
-        <a href="javascript:void(0)" class="nav-sub-item" title="${escHtml(r.description || (r.lab + " · " + r.email))}" onclick="goToRoom('${r._key}')">
+        <a href="javascript:void(0)" class="nav-sub-item" title="${escHtml(r.description || r.email || r.name)}" onclick="goToRoom('${r._key}')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;display:inline-block;flex-shrink:0">
             <circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/>
           </svg>

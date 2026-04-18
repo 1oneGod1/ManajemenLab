@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (snap.exists()) {
         currentRoom = snap.val();
         const chip = document.getElementById("labChip");
-        chip.textContent = `🚪 ${currentRoom.name} · ${currentRoom.lab}`;
+        chip.textContent = `🚪 ${currentRoom.name}`;
         chip.style.display = "inline-flex";
         const emailInput = document.getElementById("emailInput");
         if (emailInput && currentRoom.email) {
@@ -150,7 +150,6 @@ function bindAuthState() {
 function persistRoomSession(roomKey, room, userEmail) {
   sessionStorage.setItem("loggedInRoomKey", roomKey);
   sessionStorage.setItem("loggedInRoomName", room.name || "");
-  sessionStorage.setItem("loggedInRoomLab", room.lab || "");
   sessionStorage.setItem("loggedInRoomEmail", userEmail);
   // Clear lab session to avoid mix-up
   sessionStorage.removeItem("loggedInLab");
