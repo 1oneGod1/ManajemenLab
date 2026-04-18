@@ -49,6 +49,157 @@
         color: #fbbf24;
         letter-spacing: .4px;
       }
+
+      /* Inventory toolbar */
+      .inv-toolbar {
+        display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+        margin: 12px 0 20px;
+      }
+      .inv-search {
+        flex: 1; min-width: 240px;
+        display: flex; align-items: center; gap: 8px;
+        background: var(--bg2, #0f172a); border: 1px solid var(--border);
+        border-radius: 9px; padding: 8px 12px;
+        color: var(--text-muted);
+      }
+      .inv-search input {
+        flex: 1; background: transparent; border: 0; outline: 0;
+        color: var(--text-primary); font: inherit;
+      }
+      .inv-toolbar select {
+        background: var(--bg2, #0f172a); border: 1px solid var(--border);
+        color: var(--text-primary); padding: 8px 12px; border-radius: 9px;
+        font: inherit; min-width: 150px; cursor: pointer;
+      }
+      .btn-primary {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: linear-gradient(135deg,#3b82f6,#6366f1);
+        color: #fff; border: 0; padding: 9px 16px; border-radius: 9px;
+        font-weight: 600; font-size: 13px; cursor: pointer;
+      }
+      .btn-primary:hover { filter: brightness(1.1); }
+      .btn-outline {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: transparent; color: var(--text-primary);
+        border: 1px solid var(--border); padding: 8px 14px; border-radius: 9px;
+        font-weight: 500; font-size: 12.5px; cursor: pointer;
+      }
+      .btn-outline:hover { border-color: #60a5fa; color: #60a5fa; }
+
+      /* Inventory grid */
+      .inv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 14px;
+      }
+      .inv-empty {
+        grid-column: 1/-1;
+        text-align: center; padding: 48px;
+        color: var(--text-muted); font-size: 13.5px;
+        background: rgba(255,255,255,.02);
+        border: 1px dashed var(--border); border-radius: 12px;
+      }
+      .ri-card {
+        background: var(--bg2, #0f172a); border: 1px solid var(--border);
+        border-radius: 12px; overflow: hidden; transition: .18s;
+        display: flex; flex-direction: column;
+      }
+      .ri-card:hover { border-color: rgba(59,130,246,.4); transform: translateY(-2px); }
+      .ri-photo-wrap {
+        position: relative; aspect-ratio: 16/10; background: rgba(255,255,255,.03);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .ri-photo-wrap img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+      .ri-photo-wrap .ri-no-photo { color: var(--text-muted); font-size: 11px; }
+      .ri-kat-badge {
+        position: absolute; top: 8px; left: 8px;
+        background: rgba(0,0,0,.6); color: #fff;
+        font-size: 10px; font-weight: 600;
+        padding: 3px 8px; border-radius: 999px;
+        backdrop-filter: blur(4px);
+      }
+      .ri-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+      .ri-name { font-weight: 600; font-size: 13.5px; color: var(--text-primary); }
+      .ri-code { font-size: 11px; color: var(--text-muted); }
+      .ri-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+      .ri-qty { font-size: 12px; color: var(--text-secondary); }
+      .ri-cond {
+        font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+        letter-spacing: .3px;
+      }
+      .ri-cond.ok { background: rgba(34,197,94,.15); color: #4ade80; }
+      .ri-cond.good { background: rgba(59,130,246,.15); color: #60a5fa; }
+      .ri-cond.warn { background: rgba(251,191,36,.15); color: #fbbf24; }
+      .ri-cond.danger { background: rgba(239,68,68,.15); color: #f87171; }
+      .ri-note { font-size: 11.5px; color: var(--text-muted); font-style: italic; }
+      .ri-actions { display: flex; gap: 6px; margin-top: 8px; }
+      .ri-btn {
+        flex: 1; background: rgba(255,255,255,.04); border: 1px solid var(--border);
+        color: var(--text-secondary); padding: 5px 10px; border-radius: 7px;
+        font-size: 11.5px; cursor: pointer; font-weight: 500;
+      }
+      .ri-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+      .ri-btn.danger:hover { border-color: #f87171; color: #f87171; }
+
+      /* Pagination */
+      .inv-pagination {
+        display: flex; justify-content: center; align-items: center; gap: 12px;
+        margin-top: 24px;
+      }
+      .pg-btn {
+        background: var(--bg2, #0f172a); border: 1px solid var(--border);
+        color: var(--text-primary); padding: 7px 14px; border-radius: 8px;
+        font-size: 12.5px; cursor: pointer;
+      }
+      .pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+      .pg-info { font-size: 12.5px; color: var(--text-muted); }
+
+      /* Photo upload */
+      .photo-upload-row { display: flex; gap: 12px; align-items: flex-start; }
+      .photo-upload-row input[type=file] {
+        flex: 1; color: var(--text-secondary);
+        font-size: 12px;
+      }
+      .photo-preview-box {
+        position: relative; width: 100px; height: 100px;
+        border: 1px dashed var(--border); border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,.02); overflow: hidden;
+      }
+      .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+      .photo-placeholder { font-size: 10px; color: var(--text-muted); text-align: center; padding: 4px; }
+      .photo-remove-btn {
+        position: absolute; top: 4px; right: 4px;
+        background: rgba(239,68,68,.9); color: #fff;
+        border: 0; padding: 2px 6px; border-radius: 4px;
+        font-size: 10px; cursor: pointer;
+      }
+
+      /* Radio group */
+      .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+      .radio-group label {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px;
+        font-size: 12px; cursor: pointer;
+      }
+      .radio-group input[type=radio] { accent-color: #60a5fa; }
+
+      /* Category list */
+      .category-list { display: flex; flex-wrap: wrap; gap: 6px; }
+      .category-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(59,130,246,.1); color: #60a5fa;
+        padding: 5px 10px; border-radius: 999px;
+        font-size: 11.5px; font-weight: 500;
+      }
+      .category-chip button {
+        background: transparent; border: 0; color: inherit; cursor: pointer;
+        opacity: .7; font-size: 14px; line-height: 1;
+      }
+      .category-chip button:hover { opacity: 1; color: #f87171; }
+
+      .form-row { display: flex; gap: 12px; }
+      .form-row .form-group { flex: 1; }
     </style>
   </head>
   <body>
@@ -219,11 +370,43 @@
       <!-- Inventaris -->
       <div class="page-content hidden" id="page-inventaris">
         <div class="page-header">
-          <div class="page-title">Inventaris Ruangan</div>
+          <div>
+            <div class="page-title">Inventaris Ruangan</div>
+            <div class="page-desc">Daftar alat & barang khusus ruangan ini, tersimpan di cloud.</div>
+          </div>
+          <button class="btn-primary" onclick="openAddRoomItemModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Item
+          </button>
         </div>
-        <div class="coming-soon-box">
-          <h3>Inventaris per Ruangan</h3>
-          <p>Daftar alat & barang khusus ruangan ini akan tersedia di tahap berikutnya.</p>
+
+        <div class="inv-toolbar">
+          <div class="inv-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="roomInvSearch" placeholder="Cari nama atau kode…" oninput="renderRoomInventory()" />
+          </div>
+          <select id="roomInvFilterCond" onchange="renderRoomInventory()">
+            <option value="">Semua Kondisi</option>
+            <option>Sangat Baik</option>
+            <option>Baik</option>
+            <option>Cukup</option>
+            <option>Rusak</option>
+          </select>
+          <select id="roomInvFilterKat" onchange="renderRoomInventory()">
+            <option value="">Semua Kategori</option>
+          </select>
+          <button class="btn-outline" onclick="openRoomCategoryModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            Kategori
+          </button>
+        </div>
+
+        <div id="roomInvBody" class="inv-grid"></div>
+
+        <div class="inv-pagination" id="roomInvPagination" style="display:none">
+          <button class="pg-btn" id="roomInvPrev" onclick="roomInvChangePage(-1)">‹ Prev</button>
+          <span class="pg-info" id="roomInvPageInfo">Halaman 1</span>
+          <button class="pg-btn" id="roomInvNext" onclick="roomInvChangePage(1)">Next ›</button>
         </div>
       </div>
 
@@ -250,12 +433,113 @@
       </div>
     </div>
 
+    <!-- Modal: Add/Edit Room Inventory Item -->
+    <div class="modal-overlay" id="roomItemModal" onclick="closeModalOutside(event)">
+      <div class="modal" style="max-width:560px">
+        <div class="modal-header">
+          <div class="modal-header-icon" style="background:rgba(59,130,246,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <div>
+            <h3 id="roomItemModalTitle">Tambah Item</h3>
+            <p class="modal-subtitle">Inventaris ruangan disimpan di cloud.</p>
+          </div>
+          <button class="modal-close" onclick="closeModal('roomItemModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="roomItemEditKey" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>NAMA ITEM <span style="color:#f87171">*</span></label>
+              <input id="roomItemName" placeholder="Contoh: Proyektor Epson" />
+            </div>
+            <div class="form-group">
+              <label>KODE / SN</label>
+              <input id="roomItemCode" placeholder="Opsional" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>KATEGORI <span style="color:#f87171">*</span></label>
+              <select id="roomItemKat"></select>
+            </div>
+            <div class="form-group">
+              <label>JUMLAH <span style="color:#f87171">*</span></label>
+              <input id="roomItemQty" type="number" min="1" value="1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>KONDISI <span style="color:#f87171">*</span></label>
+            <div class="radio-group" id="roomItemCondGroup">
+              <label><input type="radio" name="roomItemCond" value="Sangat Baik" checked /> <span>Sangat Baik</span></label>
+              <label><input type="radio" name="roomItemCond" value="Baik" /> <span>Baik</span></label>
+              <label><input type="radio" name="roomItemCond" value="Cukup" /> <span>Cukup</span></label>
+              <label><input type="radio" name="roomItemCond" value="Rusak" /> <span>Rusak</span></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>CATATAN</label>
+            <input id="roomItemNote" placeholder="Opsional — lokasi, merek, dll." />
+          </div>
+          <div class="form-group">
+            <label>FOTO (opsional, max 4MB)</label>
+            <div class="photo-upload-row">
+              <input type="file" id="roomItemPhoto" accept="image/*" onchange="previewRoomItemPhoto(event)" />
+              <div class="photo-preview-box" id="roomItemPhotoPreviewBox">
+                <img id="roomItemPhotoPreview" style="display:none" />
+                <div id="roomItemPhotoPlaceholder" class="photo-placeholder">Belum ada foto</div>
+                <button type="button" class="photo-remove-btn" id="roomItemRemovePhoto" style="display:none" onclick="clearRoomItemPhoto()">Hapus</button>
+              </div>
+            </div>
+          </div>
+          <div id="roomItemErr" class="err-box" style="display:none"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('roomItemModal')">Batal</button>
+          <button class="btn-save" type="button" id="roomItemSaveBtn" onclick="saveRoomItem()">Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Manage Categories -->
+    <div class="modal-overlay" id="roomCategoryModal" onclick="closeModalOutside(event)">
+      <div class="modal" style="max-width:420px">
+        <div class="modal-header">
+          <div class="modal-header-icon" style="background:rgba(167,139,250,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </div>
+          <div>
+            <h3>Kelola Kategori</h3>
+            <p class="modal-subtitle">Tambah atau hapus kategori untuk ruangan ini.</p>
+          </div>
+          <button class="modal-close" onclick="closeModal('roomCategoryModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>TAMBAH KATEGORI BARU</label>
+            <div style="display:flex;gap:8px">
+              <input id="roomNewCategoryInput" placeholder="Contoh: Alat Tulis" onkeydown="if(event.key==='Enter') addRoomCategory()" />
+              <button class="btn-save" type="button" onclick="addRoomCategory()">Tambah</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>KATEGORI SAAT INI</label>
+            <div id="roomCategoryList" class="category-list"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal('roomCategoryModal')">Tutup</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/r2-service.js"></script>
     <script src="../assets/js/room.js"></script>
   </body>
 </html>
