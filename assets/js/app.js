@@ -1988,3 +1988,52 @@ window.deleteDevSection = async function (key, name) {
     showToast(`Section "${name}" dihapus.`);
   } catch (err) { showToast("Gagal: " + err.message); }
 };
+
+const ROOM_SEED = [
+  { name: "Ruang 207 — Computer Lab",   note: "Lab Komputer utama, 30 unit PC" },
+  { name: "Ruang 208 — Computer Lab",   note: "Lab Komputer cadangan, 20 unit PC" },
+  { name: "Ruang 301 — Physics Lab",    note: "Lab Fisika, alat mekanika & listrik" },
+  { name: "Ruang 302 — Physics Lab",    note: "Lab Fisika lanjut, optik & pengukuran" },
+  { name: "Ruang 303 — Chemistry Lab",  note: "Lab Kimia, lemari asam & timbangan" },
+  { name: "Ruang 304 — Chemistry Lab",  note: "Lab Kimia organik, alat gelas" },
+  { name: "Ruang 305 — Biology Lab",    note: "Lab Biologi, mikroskop & preparat" },
+  { name: "Ruang 306 — Biology Lab",    note: "Lab Biologi lanjut, model anatomi & spesimen" },
+];
+
+window.seedRoomList = async function () {
+  if (!confirm("Seed Room List?\n\nIni akan membuat section 'Room List' (jika belum ada) dan mengisi 8 ruang untuk semua lab. Item yang sudah ada tidak akan digandakan.")) return;
+
+  try {
+    // Find or create the "Room List" section
+    let sectionKey = null;
+    const existing = devSections.find((s) => s.name.toLowerCase() === "room list");
+    if (existing) {
+      sectionKey = existing._key;
+    } else {
+      const ref = await db.ref("dev_config/sections").push({ name: "Room List", createdAt: Date.now() });
+      sectionKey = ref.key;
+    }
+
+    // Get current items to avoid duplicates
+    const snap = await db.ref(`dev_config/section_items/${sectionKey}`).once("value");
+    const existingNames = new Set();
+    snap.forEach((child) => existingNames.add((child.val().name || "").toLowerCase()));
+
+    // Push only missing rooms
+    const promises = [];
+    for (const room of ROOM_SEED) {
+      if (!existingNames.has(room.name.toLowerCase())) {
+        promises.push(db.ref(`dev_config/section_items/${sectionKey}`).push({ name: room.name, note: room.note, createdAt: Date.now() }));
+      }
+    }
+
+    if (promises.length) {
+      await Promise.all(promises);
+      showToast(`${promises.length} ruang berhasil ditambahkan ke Room List.`);
+    } else {
+      showToast("Semua ruang sudah ada — tidak ada yang ditambahkan.");
+    }
+  } catch (err) {
+    showToast("Gagal seed: " + err.message);
+  }
+};
