@@ -487,6 +487,22 @@
         <div class="dev-grid" id="devLabGrid"></div>
       </div>
 
+      <!-- BUILT-IN: ROOM LIST -->
+      <div class="dev-section">
+        <div class="dev-section-head">
+          <div class="dev-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            Room List <span style="font-size:10px;font-weight:500;color:var(--text-muted);margin-left:6px">BUILT-IN</span>
+          </div>
+          <button class="dev-add-btn" style="background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:#60a5fa" onclick="openAddRoomModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Ruangan
+          </button>
+        </div>
+        <p style="color:var(--text-muted);font-size:12.5px;margin:-4px 0 12px">Setiap ruangan punya akun login sendiri (email + password Firebase) dan dashboard terpisah.</p>
+        <div class="dev-grid" id="devRoomGrid"></div>
+      </div>
+
       <!-- CUSTOM SECTIONS -->
       <div class="dev-section-header-row">
         <div class="dev-section-title" style="font-size:14px;font-weight:700;color:var(--text-primary)">
@@ -496,10 +512,6 @@
         <button class="dev-add-btn" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#c4b5fd" onclick="openModal('addSectionModal')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tambah Section Baru
-        </button>
-        <button class="dev-add-btn" style="background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#86efac" onclick="seedRoomList()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Seed Room List
         </button>
       </div>
       <p style="color:var(--text-muted);font-size:12.5px;margin-bottom:16px">Section baru akan muncul sebagai grup di sidebar — isi dengan item bebas sesuai kebutuhan.</p>
@@ -633,6 +645,59 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('addSectionItemModal')">Batal</button>
         <button class="btn-save" type="button" onclick="saveNewSectionItem()">Simpan Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Room -->
+  <div class="modal-overlay" id="roomModal" onclick="closeModalOutside(event)">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <div class="modal-header-icon" style="background:rgba(59,130,246,.15)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div>
+          <h3 id="roomModalTitle">Tambah Ruangan</h3>
+          <p class="modal-subtitle" id="roomModalSubtitle">Buat ruangan baru dengan akun login Firebase</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('roomModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="roomEditKey" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>NAMA RUANGAN <span style="color:#f87171">*</span></label>
+            <input id="roomName" placeholder="Contoh: Ruang 207" />
+          </div>
+          <div class="form-group">
+            <label>LAB PARENT <span style="color:#f87171">*</span></label>
+            <select id="roomLab">
+              <option value="">— Pilih Lab —</option>
+              <option>Computer Lab</option>
+              <option>Physics Lab</option>
+              <option>Chemistry Lab</option>
+              <option>Biology Lab</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>EMAIL LOGIN <span style="color:#f87171">*</span></label>
+          <input id="roomEmail" type="email" placeholder="ruang207@labflow.id" />
+        </div>
+        <div class="form-group" id="roomPasswordWrap">
+          <label>PASSWORD <span style="color:#f87171">*</span></label>
+          <input id="roomPassword" type="password" placeholder="Minimal 6 karakter" />
+          <p style="color:var(--text-muted);font-size:11.5px;margin:6px 0 0">Password disimpan di Firebase Authentication. Minimal 6 karakter.</p>
+        </div>
+        <div class="form-group">
+          <label>DESKRIPSI (opsional)</label>
+          <input id="roomDescription" placeholder="Contoh: Lantai 2, kapasitas 30 PC" />
+        </div>
+        <div id="roomErr" class="err-box" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('roomModal')">Batal</button>
+        <button class="btn-save" type="button" id="roomSaveBtn" onclick="saveRoom()">Buat Ruangan</button>
       </div>
     </div>
   </div>

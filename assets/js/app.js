@@ -315,6 +315,9 @@ function initFirebaseListeners() {
   initDevSectionsListener();
   initDevSectionItemsListener();
 
+  // --- Rooms (new schema) ---
+  initRoomsListener();
+
   // --- Activity feed lintas halaman ---
   db.ref("activity_log")
     .limitToLast(80)
@@ -2018,51 +2021,244 @@ window.deleteDevSection = async function (key, name) {
   } catch (err) { showToast("Gagal: " + err.message); }
 };
 
-const ROOM_SEED = [
-  { name: "Ruang 207 — Computer Lab",   note: "Lab Komputer utama, 30 unit PC" },
-  { name: "Ruang 208 — Computer Lab",   note: "Lab Komputer cadangan, 20 unit PC" },
-  { name: "Ruang 301 — Physics Lab",    note: "Lab Fisika, alat mekanika & listrik" },
-  { name: "Ruang 302 — Physics Lab",    note: "Lab Fisika lanjut, optik & pengukuran" },
-  { name: "Ruang 303 — Chemistry Lab",  note: "Lab Kimia, lemari asam & timbangan" },
-  { name: "Ruang 304 — Chemistry Lab",  note: "Lab Kimia organik, alat gelas" },
-  { name: "Ruang 305 — Biology Lab",    note: "Lab Biologi, mikroskop & preparat" },
-  { name: "Ruang 306 — Biology Lab",    note: "Lab Biologi lanjut, model anatomi & spesimen" },
-];
+/* ===========================
+   ROOMS (schema: rooms/{roomId})
+=========================== */
+let roomsList = [];
 
-window.seedRoomList = async function () {
-  if (!confirm("Seed Room List?\n\nIni akan membuat section 'Room List' (jika belum ada) dan mengisi 8 ruang untuk semua lab. Item yang sudah ada tidak akan digandakan.")) return;
+function initRoomsListener() {
+  db.ref("rooms").on("value", (snap) => {
+    roomsList = [];
+    snap.forEach((child) => {
+      roomsList.push({ _key: child.key, ...child.val() });
+    });
+    roomsList.sort((a, b) => {
+      const la = (a.lab || "").localeCompare(b.lab || "");
+      if (la !== 0) return la;
+      return (a.name || "").localeCompare(b.name || "");
+    });
+    renderRoomsAdmin();
+    renderSidebarRoomList();
+  });
+}
+
+function renderRoomsAdmin() {
+  const grid = document.getElementById("devRoomGrid");
+  if (!grid) return;
+
+  if (!roomsList.length) {
+    grid.innerHTML = `<div class="dev-card" style="grid-column:1/-1;border:1px dashed var(--border);background:transparent;text-align:center;color:var(--text-muted);padding:24px">
+      Belum ada ruangan. Klik "+ Tambah Ruangan" untuk membuat yang pertama.
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = roomsList.map((r) => `
+    <div class="dev-card custom">
+      <div class="dev-card-icon" style="background:rgba(59,130,246,.15);color:#60a5fa">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <div class="dev-card-body">
+        <div class="dev-card-name">${escHtml(r.name || "(tanpa nama)")}</div>
+        <div class="dev-card-meta">${escHtml(r.lab || "—")} · ${escHtml(r.email || "—")}</div>
+        ${r.description ? `<div class="dev-card-meta" style="margin-top:2px;color:var(--text-muted)">${escHtml(r.description)}</div>` : ""}
+      </div>
+      <div class="dev-card-actions">
+        <button class="dev-icon-btn" title="Edit" onclick="openEditRoomModal('${r._key}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <button class="dev-icon-btn" title="Hapus" onclick="deleteRoom('${r._key}','${escHtml(r.name || "")}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+window.openAddRoomModal = function () {
+  document.getElementById("roomModalTitle").textContent = "Tambah Ruangan";
+  document.getElementById("roomModalSubtitle").textContent = "Buat ruangan baru dengan akun login Firebase";
+  document.getElementById("roomSaveBtn").textContent = "Buat Ruangan";
+  document.getElementById("roomEditKey").value = "";
+  document.getElementById("roomName").value = "";
+  document.getElementById("roomLab").value = "";
+  document.getElementById("roomEmail").value = "";
+  document.getElementById("roomPassword").value = "";
+  document.getElementById("roomDescription").value = "";
+  document.getElementById("roomPasswordWrap").style.display = "";
+  document.getElementById("roomEmail").disabled = false;
+  const err = document.getElementById("roomErr");
+  err.style.display = "none"; err.textContent = "";
+  openModal("roomModal");
+  setTimeout(() => document.getElementById("roomName").focus(), 100);
+};
+
+window.openEditRoomModal = function (key) {
+  const r = roomsList.find((x) => x._key === key);
+  if (!r) { showToast("Ruangan tidak ditemukan."); return; }
+  document.getElementById("roomModalTitle").textContent = "Edit Ruangan";
+  document.getElementById("roomModalSubtitle").textContent = "Email login tidak dapat diubah setelah dibuat.";
+  document.getElementById("roomSaveBtn").textContent = "Simpan Perubahan";
+  document.getElementById("roomEditKey").value = key;
+  document.getElementById("roomName").value = r.name || "";
+  document.getElementById("roomLab").value = r.lab || "";
+  document.getElementById("roomEmail").value = r.email || "";
+  document.getElementById("roomEmail").disabled = true;
+  document.getElementById("roomPassword").value = "";
+  document.getElementById("roomDescription").value = r.description || "";
+  document.getElementById("roomPasswordWrap").style.display = "none";
+  const err = document.getElementById("roomErr");
+  err.style.display = "none"; err.textContent = "";
+  openModal("roomModal");
+};
+
+// Secondary Firebase app for creating users without signing out the admin
+let _roomSecondaryApp = null;
+function getRoomAuthApp() {
+  if (_roomSecondaryApp) return _roomSecondaryApp;
+  if (typeof firebase === "undefined" || !firebase.app) return null;
+  const primary = firebase.app();
+  _roomSecondaryApp = firebase.initializeApp(primary.options, "roomCreator");
+  return _roomSecondaryApp;
+}
+
+window.saveRoom = async function () {
+  const errBox = document.getElementById("roomErr");
+  const showErr = (msg) => { errBox.textContent = msg; errBox.style.display = "block"; };
+  errBox.style.display = "none";
+
+  const key = document.getElementById("roomEditKey").value;
+  const name = document.getElementById("roomName").value.trim();
+  const labVal = document.getElementById("roomLab").value.trim();
+  const emailVal = document.getElementById("roomEmail").value.trim();
+  const password = document.getElementById("roomPassword").value;
+  const description = document.getElementById("roomDescription").value.trim();
+
+  if (!name) return showErr("Nama ruangan wajib diisi.");
+  if (!labVal) return showErr("Lab parent wajib dipilih.");
+  if (!emailVal) return showErr("Email login wajib diisi.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) return showErr("Format email tidak valid.");
+
+  const saveBtn = document.getElementById("roomSaveBtn");
+  saveBtn.disabled = true;
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = "Menyimpan…";
 
   try {
-    // Find or create the "Room List" section
-    let sectionKey = null;
-    const existing = devSections.find((s) => s.name.toLowerCase() === "room list");
-    if (existing) {
-      sectionKey = existing._key;
+    if (key) {
+      // EDIT: only update RTDB (email & password immutable here)
+      const existing = roomsList.find((r) => r._key === key);
+      await db.ref(`rooms/${key}`).update({
+        name,
+        lab: labVal,
+        description,
+        updatedAt: Date.now(),
+      });
+      showToast(`Ruangan "${name}" diperbarui.`);
     } else {
-      const ref = await db.ref("dev_config/sections").push({ name: "Room List", createdAt: Date.now() });
-      sectionKey = ref.key;
-    }
-
-    // Get current items to avoid duplicates
-    const snap = await db.ref(`dev_config/section_items/${sectionKey}`).once("value");
-    const existingNames = new Set();
-    snap.forEach((child) => existingNames.add((child.val().name || "").toLowerCase()));
-
-    // Push only missing rooms
-    const promises = [];
-    for (const room of ROOM_SEED) {
-      if (!existingNames.has(room.name.toLowerCase())) {
-        promises.push(db.ref(`dev_config/section_items/${sectionKey}`).push({ name: room.name, note: room.note, createdAt: Date.now() }));
+      // CREATE: duplicate name/email check
+      if (roomsList.some((r) => (r.email || "").toLowerCase() === emailVal.toLowerCase())) {
+        return showErr("Email ini sudah terdaftar untuk ruangan lain.");
       }
-    }
+      if (!password || password.length < 6) return showErr("Password minimal 6 karakter.");
 
-    if (promises.length) {
-      await Promise.all(promises);
-      showToast(`${promises.length} ruang berhasil ditambahkan ke Room List.`);
-    } else {
-      showToast("Semua ruang sudah ada — tidak ada yang ditambahkan.");
+      const secondary = getRoomAuthApp();
+      if (!secondary) return showErr("Firebase belum siap. Muat ulang halaman.");
+
+      const secAuth = secondary.auth();
+      let uid = null;
+      try {
+        const cred = await secAuth.createUserWithEmailAndPassword(emailVal, password);
+        uid = cred.user.uid;
+        try { await cred.user.sendEmailVerification(); } catch (_) { /* non-fatal */ }
+        await secAuth.signOut();
+      } catch (authErr) {
+        if (authErr && authErr.code === "auth/email-already-in-use") {
+          return showErr("Email sudah terdaftar di Firebase Auth. Gunakan email lain.");
+        }
+        return showErr("Gagal membuat akun: " + (authErr.message || authErr.code));
+      }
+
+      await db.ref("rooms").push({
+        name,
+        lab: labVal,
+        email: emailVal,
+        uid,
+        description,
+        createdAt: Date.now(),
+      });
+      showToast(`Ruangan "${name}" dibuat. Verifikasi email dikirim ke ${emailVal}.`);
     }
+    closeModal("roomModal");
   } catch (err) {
-    showToast("Gagal seed: " + err.message);
+    showErr("Gagal: " + (err.message || err));
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = originalText;
   }
+};
+
+window.deleteRoom = async function (key, name) {
+  if (!confirm(`Hapus ruangan "${name}"?\n\nCatatan: akun login Firebase Auth tidak ikut terhapus (harus dihapus manual dari Firebase Console).`)) return;
+  try {
+    await db.ref(`rooms/${key}`).remove();
+    showToast(`Ruangan "${name}" dihapus.`);
+  } catch (err) {
+    showToast("Gagal: " + err.message);
+  }
+};
+
+/* Sidebar Room List — now reads from rooms/ */
+function renderSidebarRoomList() {
+  const nav = document.querySelector(".sidebar-nav");
+  if (!nav) return;
+
+  // Remove previous room-list group
+  nav.querySelectorAll(".nav-group.room-list-group").forEach((el) => el.remove());
+
+  // Insert before Developer nav item
+  const devItem = document.getElementById("nav-developer");
+  if (!devItem) return;
+
+  const group = document.createElement("div");
+  group.className = "nav-group room-list-group";
+
+  const itemsHtml = roomsList.length
+    ? roomsList.map((r) => `
+        <a href="javascript:void(0)" class="nav-sub-item" title="${escHtml(r.description || (r.lab + " · " + r.email))}" onclick="goToRoom('${r._key}')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;display:inline-block;flex-shrink:0">
+            <circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/>
+          </svg>
+          ${escHtml(r.name || "(tanpa nama)")}
+        </a>`).join("")
+    : `<span class="nav-sub-empty">Belum ada ruangan</span>`;
+
+  group.innerHTML = `
+    <button class="nav-group-header" onclick="toggleRoomList()">
+      <div class="nav-group-left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+        </svg>
+        Room List
+      </div>
+      <svg class="chevron open" id="roomListChev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6,9 12,15 18,9"/>
+      </svg>
+    </button>
+    <div class="nav-sub open" id="roomListSub">${itemsHtml}</div>`;
+
+  nav.insertBefore(group, devItem);
+}
+
+window.toggleRoomList = function () {
+  const sub = document.getElementById("roomListSub");
+  const chev = document.getElementById("roomListChev");
+  if (sub) sub.classList.toggle("open");
+  if (chev) chev.classList.toggle("open");
+};
+
+window.goToRoom = function (roomKey) {
+  const room = roomsList.find((r) => r._key === roomKey);
+  if (!room) { showToast("Ruangan tidak ditemukan."); return; }
+  navigateTo(`pages/login.html?room=${encodeURIComponent(roomKey)}`);
 };

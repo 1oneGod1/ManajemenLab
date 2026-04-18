@@ -30,9 +30,11 @@ const DEMO_CREDENTIALS = {
 };
 
 /* ===========================
-   CURRENT LAB (from URL, set by dashboard)
+   CURRENT LAB / ROOM (from URL)
 =========================== */
 let currentLab = null;
+let currentRoomKey = null;
+let currentRoom = null; // fetched from Firebase rooms/{roomKey}
 
 // State for unverified user resend flow
 let _unverifiedEmail = null;
@@ -57,18 +59,40 @@ const LAB_EMOJIS = {
 /* ===========================
    ON LOAD
 =========================== */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   currentLab = params.get("lab") || null;
+  currentRoomKey = params.get("room") || null;
 
-  // Show lab chip and update subtitle
-  if (currentLab) {
+  // ROOM mode: fetch room info, show room chip, prefill email
+  if (currentRoomKey && typeof db !== "undefined") {
+    try {
+      const snap = await db.ref(`rooms/${currentRoomKey}`).once("value");
+      if (snap.exists()) {
+        currentRoom = snap.val();
+        const chip = document.getElementById("labChip");
+        chip.textContent = `🚪 ${currentRoom.name} · ${currentRoom.lab}`;
+        chip.style.display = "inline-flex";
+        const emailInput = document.getElementById("emailInput");
+        if (emailInput && currentRoom.email) {
+          emailInput.placeholder = currentRoom.email;
+          emailInput.value = currentRoom.email;
+        }
+        const cardTitle = document.getElementById("cardTitle");
+        if (cardTitle) cardTitle.textContent = `Login Ruangan ${currentRoom.name}`;
+      } else {
+        showAlert("Ruangan tidak ditemukan.");
+      }
+    } catch (err) {
+      console.warn("Gagal memuat data ruangan:", err);
+    }
+  } else if (currentLab) {
+    // LAB mode (legacy)
     const chip = document.getElementById("labChip");
     const emoji = LAB_EMOJIS[currentLab] || "🏫";
     chip.textContent = emoji + " " + currentLab;
     chip.style.display = "inline-flex";
 
-    // Also hint the email placeholder
     const profile = LAB_PROFILES[currentLab];
     if (profile) {
       document.getElementById("emailInput").placeholder = profile.email;
@@ -85,7 +109,21 @@ function bindAuthState() {
   auth.onAuthStateChanged(async (user) => {
     if (!user) return;
 
-    // Block auto-redirect for unverified non-demo users
+    // ROOM mode: verify user belongs to this room, redirect to room.html
+    if (currentRoomKey && currentRoom) {
+      if ((user.email || "").toLowerCase() !== (currentRoom.email || "").toLowerCase()) {
+        return; // let user login manually with the right room account
+      }
+      if (!user.emailVerified) {
+        await auth.signOut();
+        return;
+      }
+      persistRoomSession(currentRoomKey, currentRoom, user.email || "");
+      navigateTo("room.html");
+      return;
+    }
+
+    // LAB mode (existing)
     if (!user.emailVerified && !isDemoEmail(user.email)) {
       await auth.signOut();
       return;
@@ -109,6 +147,16 @@ function bindAuthState() {
   });
 }
 
+function persistRoomSession(roomKey, room, userEmail) {
+  sessionStorage.setItem("loggedInRoomKey", roomKey);
+  sessionStorage.setItem("loggedInRoomName", room.name || "");
+  sessionStorage.setItem("loggedInRoomLab", room.lab || "");
+  sessionStorage.setItem("loggedInRoomEmail", userEmail);
+  // Clear lab session to avoid mix-up
+  sessionStorage.removeItem("loggedInLab");
+  sessionStorage.removeItem("loggedInTeacher");
+}
+
 /* ===========================
    HANDLE LOGIN
 =========================== */
@@ -121,12 +169,52 @@ window.handleLogin = async function (e) {
     showAlert("Email dan kata sandi wajib diisi.");
     return;
   }
-  if (!currentLab) {
-    showAlert("Lab tidak diketahui. Pilih lab dari dashboard terlebih dahulu.");
-    return;
-  }
   if (typeof auth === "undefined") {
     showAlert("Firebase Auth belum siap. Muat ulang halaman.");
+    return;
+  }
+
+  // ROOM mode
+  if (currentRoomKey) {
+    if (!currentRoom) {
+      showAlert("Data ruangan belum dimuat. Muat ulang halaman.");
+      return;
+    }
+    if (email.toLowerCase() !== (currentRoom.email || "").toLowerCase()) {
+      showAlert(`Email tidak cocok untuk ruangan ${currentRoom.name}.`);
+      shakeCard();
+      return;
+    }
+
+    setLoading(true);
+    hideAlert();
+    try {
+      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      const result = await auth.signInWithEmailAndPassword(email, pass);
+      const user = result.user;
+      if (!user) throw new Error("auth/no-user");
+      if (!user.emailVerified) {
+        _unverifiedEmail = email;
+        _unverifiedPass = pass;
+        await auth.signOut();
+        showInfoBox("Email belum diverifikasi. Cek inbox Anda lalu coba login kembali.", true);
+        shakeCard();
+        return;
+      }
+      persistRoomSession(currentRoomKey, currentRoom, user.email || email);
+      navigateTo("room.html");
+    } catch (err) {
+      showAlert(mapAuthError(err));
+      shakeCard();
+    } finally {
+      setLoading(false);
+    }
+    return;
+  }
+
+  // LAB mode (existing)
+  if (!currentLab) {
+    showAlert("Lab tidak diketahui. Pilih lab dari dashboard terlebih dahulu.");
     return;
   }
 

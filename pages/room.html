@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LabFlow — Room Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/dashboard.css" />
+    <style>
+      .coming-soon-box {
+        background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(167,139,250,.08));
+        border: 1px dashed rgba(59,130,246,.35);
+        border-radius: 16px;
+        padding: 48px 32px;
+        text-align: center;
+        color: var(--text-secondary);
+        margin-top: 20px;
+      }
+      .coming-soon-box h3 {
+        color: var(--text-primary);
+        font-size: 20px;
+        margin: 0 0 8px;
+      }
+      .coming-soon-box p { margin: 0; font-size: 13.5px; }
+      .room-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: rgba(59,130,246,.12);
+        color: #60a5fa;
+        border: 1px solid rgba(59,130,246,.3);
+        letter-spacing: .4px;
+      }
+      .nav-soon-chip {
+        margin-left: auto;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: rgba(251,191,36,.15);
+        color: #fbbf24;
+        letter-spacing: .4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">LabFlow</div>
+          <div class="brand-sub" id="sidebarRoomName">Loading...</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-label">MENU RUANGAN</div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+            <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+            <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+            <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+          </svg>
+          Dashboard
+        </a>
+        <a class="nav-item" data-page="jadwal" onclick="showPage('jadwal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Jadwal Penggunaan
+        </a>
+        <a class="nav-item" data-page="inventaris" onclick="showPage('inventaris')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          Inventaris
+        </a>
+        <a class="nav-item" data-page="laporan" onclick="showPage('laporan')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Laporan Kerusakan
+        </a>
+        <a class="nav-item" data-page="peminjaman" onclick="showPage('peminjaman')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Peminjaman
+          <span class="nav-soon-chip">SOON</span>
+        </a>
+      </nav>
+
+      <div style="margin-top:auto;padding:16px 0;border-top:1px solid var(--border)">
+        <a href="../index.html" class="nav-item" style="font-size:12.5px;color:var(--text-muted)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+          Kembali ke Admin
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="handleRoomLogout()" style="font-size:12.5px;color:#f87171">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16,17 21,12 16,7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Keluar
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-breadcrumb">
+            <span class="breadcrumb-lab" id="topbarLab">—</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-dim)">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <span class="breadcrumb-page" id="topbarRoom">Ruangan</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="topbar-date" id="topbarDate"></span>
+          <div class="topbar-user">
+            <div class="t-avatar" id="roomAvatar">R</div>
+            <span class="t-name" id="roomEmail">—</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard -->
+      <div class="page-content" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="dashTitle">Dashboard Ruangan</div>
+            <div class="page-desc">Ringkasan inventaris, jadwal, dan laporan ruangan.</div>
+          </div>
+          <span class="room-pill" id="roomBadge">RUANGAN</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-body">
+              <div class="stat-value" id="statInventaris">0</div>
+              <div class="stat-label">Total Inventaris</div>
+            </div>
+            <span class="stat-trend">item terdata</span>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-body">
+              <div class="stat-value" id="statJadwal">0</div>
+              <div class="stat-label">Jadwal Minggu Ini</div>
+            </div>
+            <span class="stat-trend">sesi dijadwalkan</span>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-body">
+              <div class="stat-value" id="statLaporan">0</div>
+              <div class="stat-label">Laporan Aktif</div>
+            </div>
+            <span class="stat-trend">perlu tindakan</span>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-body">
+              <div class="stat-value" style="font-size:18px">Aktif</div>
+              <div class="stat-label">Status Ruangan</div>
+            </div>
+            <span class="stat-trend up">Tersinkron ke cloud</span>
+          </div>
+        </div>
+
+        <div class="coming-soon-box">
+          <h3>Fitur sedang disiapkan</h3>
+          <p>Inventaris, Jadwal, dan Laporan per-ruangan akan diaktifkan pada tahap berikutnya. Saat ini Anda sudah dapat login dan mengakses shell dashboard ruangan.</p>
+        </div>
+      </div>
+
+      <!-- Jadwal -->
+      <div class="page-content hidden" id="page-jadwal">
+        <div class="page-header">
+          <div class="page-title">Jadwal Penggunaan</div>
+        </div>
+        <div class="coming-soon-box">
+          <h3>Jadwal Penggunaan Ruangan</h3>
+          <p>Kalender booking per ruangan akan tersedia di tahap berikutnya.</p>
+        </div>
+      </div>
+
+      <!-- Inventaris -->
+      <div class="page-content hidden" id="page-inventaris">
+        <div class="page-header">
+          <div class="page-title">Inventaris Ruangan</div>
+        </div>
+        <div class="coming-soon-box">
+          <h3>Inventaris per Ruangan</h3>
+          <p>Daftar alat & barang khusus ruangan ini akan tersedia di tahap berikutnya.</p>
+        </div>
+      </div>
+
+      <!-- Laporan -->
+      <div class="page-content hidden" id="page-laporan">
+        <div class="page-header">
+          <div class="page-title">Laporan Kerusakan</div>
+        </div>
+        <div class="coming-soon-box">
+          <h3>Laporan Kerusakan Ruangan</h3>
+          <p>Modul laporan kerusakan per ruangan akan tersedia di tahap berikutnya.</p>
+        </div>
+      </div>
+
+      <!-- Peminjaman -->
+      <div class="page-content hidden" id="page-peminjaman">
+        <div class="page-header">
+          <div class="page-title">Peminjaman Ruangan</div>
+        </div>
+        <div class="coming-soon-box">
+          <h3>Coming Soon</h3>
+          <p>Modul peminjaman akan terintegrasi dengan sistem peminjaman ruangan eksternal. Ikuti kabar terbaru di Developer Panel.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/room.js"></script>
+  </body>
+</html>
