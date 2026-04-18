@@ -1679,7 +1679,7 @@ function renderSidebarCustomSections() {
       <div class="nav-sub open" id="${subId}">
         ${sectionItems.length
           ? sectionItems.map((item) => `
-              <a href="javascript:void(0)" class="nav-sub-item">
+              <a href="javascript:void(0)" class="nav-sub-item" title="${escHtml(item.note || item.name)}" onclick="openSectionItem('${section._key}','${item._key}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;display:inline-block;flex-shrink:0">
                   ${DEFAULT_ITEM_ICON}
                 </svg>
@@ -1698,6 +1698,35 @@ window.toggleCustomSection = function (key) {
   const chev = document.getElementById(`customChev_${key}`);
   if (sub) sub.classList.toggle("open");
   if (chev) chev.classList.toggle("open");
+};
+
+window.openSectionItem = function (sectionKey, itemKey) {
+  const section = devSections.find((s) => s._key === sectionKey);
+  const items = devSectionItems[sectionKey] || [];
+  const item = items.find((i) => i._key === itemKey);
+  if (!item) { showToast("Item tidak ditemukan."); return; }
+
+  // Try to detect lab from item name (e.g. "Ruang 207 — Computer Lab")
+  let detectedLab = null;
+  for (const lab of LAB_NAMES) {
+    if ((item.name || "").toLowerCase().includes(lab.toLowerCase())) { detectedLab = lab; break; }
+  }
+
+  const sectionName = section ? section.name : "Item";
+  document.getElementById("sectionItemTitle").textContent = item.name || "(Tanpa nama)";
+  document.getElementById("sectionItemSubtitle").textContent = sectionName;
+  document.getElementById("sectionItemNote").textContent = item.note ? item.note : "Tidak ada deskripsi tambahan.";
+
+  const labBtn = document.getElementById("sectionItemGoLab");
+  if (detectedLab) {
+    labBtn.style.display = "inline-flex";
+    labBtn.textContent = `Buka ${detectedLab} →`;
+    labBtn.onclick = () => { closeModal("sectionItemModal"); goToLab(detectedLab); };
+  } else {
+    labBtn.style.display = "none";
+  }
+
+  openModal("sectionItemModal");
 };
 
 /* ===========================
