@@ -1,4 +1,4 @@
-# LabFlow Pro - Sistem Manajemen Laboratorium Berbasis Cloud
+# Web Report - Sistem Manajemen Laboratorium Berbasis Cloud
 
 Sistem Manajemen Laboratorium Terpadu adalah platform berbasis web untuk mengelola fasilitas laboratorium secara terpusat di berbagai jenis laboratorium dengan memanfaatkan teknologi Google Firebase dan Cloudflare R2 sebagai infrastruktur cloud.
 

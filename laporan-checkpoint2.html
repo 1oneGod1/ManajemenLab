@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan Checkpoint 2 — Web Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      color: #111;
+      background: #fff;
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 16pt; text-align: center; margin-bottom: 4px; }
+    h2 { font-size: 14pt; margin: 28px 0 8px; border-bottom: 2px solid #111; padding-bottom: 4px; }
+    h3 { font-size: 12pt; margin: 16px 0 6px; }
+
+    .cover {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 2px solid #111;
+      margin-bottom: 32px;
+    }
+    .cover .title { font-size: 18pt; font-weight: bold; margin: 16px 0 8px; }
+    .cover .subtitle { font-size: 13pt; font-style: italic; margin-bottom: 32px; }
+    .cover .meta { font-size: 12pt; line-height: 2; }
+    .cover .logo { font-size: 48pt; margin-bottom: 16px; }
+
+    p { line-height: 1.8; margin-bottom: 8px; text-align: justify; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 11pt;
+    }
+    th {
+      background: #1e293b;
+      color: #fff;
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: bold;
+    }
+    td { padding: 7px 10px; border: 1px solid #cbd5e1; vertical-align: top; }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10pt;
+      font-weight: bold;
+    }
+    .badge.ok { background: #dcfce7; color: #166534; }
+    .badge.warn { background: #fef9c3; color: #854d0e; }
+    .badge.info { background: #dbeafe; color: #1e40af; }
+    .badge.bonus { background: #f3e8ff; color: #6b21a8; }
+
+    .checklist { list-style: none; padding: 0; margin: 8px 0 16px; }
+    .checklist li { padding: 5px 0 5px 28px; position: relative; line-height: 1.6; }
+    .checklist li::before { position: absolute; left: 0; }
+    .checklist li.ok::before { content: "✅"; }
+    .checklist li.bonus::before { content: "⭐"; }
+    .checklist li.warn::before { content: "⚠️"; }
+
+    .code {
+      font-family: "Courier New", monospace;
+      font-size: 10pt;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 8px 0 16px;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .summary-box {
+      border: 2px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      background: #f8fafc;
+    }
+    .summary-box h3 { margin-top: 0; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+    .col-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; }
+    .col-box h4 { font-size: 11pt; margin-bottom: 8px; color: #1e293b; }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+      font-size: 11pt;
+    }
+    .flow-step {
+      background: #1e293b;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-align: center;
+      min-width: 110px;
+    }
+    .flow-arrow { font-size: 16pt; color: #64748b; }
+
+    .req-result {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px 16px;
+      align-items: center;
+      margin: 12px 0;
+    }
+    .req-num { font-weight: bold; font-size: 13pt; }
+    .req-text { line-height: 1.6; }
+    .req-status { font-size: 16pt; }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 12px;
+      border-top: 1px solid #cbd5e1;
+      text-align: center;
+      font-size: 10pt;
+      color: #64748b;
+    }
+
+    @media print {
+      body { padding: 20px; }
+      .no-print { display: none; }
+      h2 { page-break-before: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="logo">🧪</div>
+    <div style="font-size:11pt; font-weight:bold; letter-spacing:1px">LAPORAN CHECKPOINT 2: PROYEK FINAL (ALP)</div>
+    <div class="title">Web Report</div>
+    <div class="subtitle">Sistem Manajemen Laboratorium Berbasis Cloud (Firebase + Cloudflare R2)</div>
+    <div class="meta">
+      <strong>Nama:</strong> Andi Pandapotan Purba<br>
+      <strong>NIM:</strong> 0706012324024<br>
+      <strong>Universitas Ciputra Online Learning</strong><br>
+      Surabaya, 2026
+    </div>
+  </div>
+
+  <!-- 1. DESKRIPSI -->
+  <h2>1. Deskripsi Aplikasi</h2>
+  <p>
+    Web Report adalah Sistem Manajemen Laboratorium Terpadu berbasis web yang digunakan untuk
+    mengelola fasilitas secara terpusat di empat jenis laboratorium: Komputer, Fisika, Kimia, dan Biologi.
+    Sistem ini menggabungkan Firebase Realtime Database, Firebase Authentication, dan Cloudflare R2
+    sebagai infrastruktur cloud tanpa server (serverless/BaaS).
+  </p>
+  <p>
+    Aplikasi dibangun menggunakan Vanilla HTML, CSS, dan JavaScript tanpa framework atau build tool,
+    sehingga dapat berjalan langsung di browser tanpa instalasi. Seluruh data tersinkronisasi secara
+    real-time ke semua perangkat yang mengakses sistem secara bersamaan.
+  </p>
+
+  <!-- 2. CHECKLIST REQUIREMENTS -->
+  <h2>2. Pemenuhan Requirements</h2>
+
+  <div class="summary-box">
+    <h3>Ringkasan Status Requirements</h3>
+    <ul class="checklist">
+      <li class="ok">Wajib 12 CRUD terkoneksi Firebase Realtime Database — <strong>13+ entitas, 30+ operasi</strong></li>
+      <li class="ok">Fitur Register dengan Firebase Authentication</li>
+      <li class="ok">Fitur Login dengan Firebase Authentication</li>
+      <li class="ok">Webmailer — email verifikasi otomatis setelah register (Firebase)</li>
+      <li class="bonus">Bonus: Cloudflare R2 sebagai layanan cloud storage tambahan</li>
+    </ul>
+  </div>
+
+  <!-- 3. DETAIL CRUD -->
+  <h2>3. Implementasi CRUD — Firebase Realtime Database</h2>
+  <p>
+    Seluruh operasi CRUD terhubung langsung ke Firebase Realtime Database melalui Firebase SDK v10.12.2.
+    Berikut pemetaan lengkap 13 entitas dengan operasi CRUD masing-masing:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Entitas / Path Firebase</th>
+        <th>Create</th>
+        <th>Read</th>
+        <th>Update</th>
+        <th>Delete</th>
+        <th>File</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><code>/fasilitas</code><br>Data inventaris global</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">update()</span></td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>app.js</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>/laporan</code><br>Laporan kerusakan global</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">update()</span></td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>app.js</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>/dev_config/labs</code><br>Konfigurasi lab</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td>—</td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>app.js</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code>/rooms</code><br>Data ruangan</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">update()</span></td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>app.js</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><code>/rooms/{id}/items</code><br>Inventaris per ruangan</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">update()</span></td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>room.js</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><code>/rooms/{id}/jadwal</code><br>Jadwal per ruangan</td>
+        <td><span class="badge ok">push()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">update()</span></td>
+        <td><span class="badge ok">remove()</span></td>
+        <td>room.js</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><code>/lab_data/{lab}/items</code><br>Inventaris per lab</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td>dashboard.js</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><code>/lab_data/{lab}/jadwal</code><br>Jadwal per lab</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td>dashboard.js</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td><code>/lab_data/{lab}/laporan</code><br>Laporan per lab</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td>dashboard.js</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td><code>/lab_data/{lab}/pinjam</code><br>Peminjaman alat</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td>dashboard.js</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td><code>/lab_data/{lab}/categories</code><br>Kategori inventaris</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">on("value")</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">set()</span></td>
+        <td>dashboard.js</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td><code>/activity_log</code><br>Log aktivitas pengguna</td>
+        <td><span class="badge ok">push()</span></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td>semua file</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td><code>/user_profiles/{uid}</code><br>Profil pengguna</td>
+        <td><span class="badge ok">set()</span></td>
+        <td><span class="badge ok">once("value")</span></td>
+        <td>—</td>
+        <td>—</td>
+        <td>login.js / dashboard.js</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    <strong>Total: 13 entitas</strong> dengan lebih dari 30 operasi Firebase — melampaui syarat minimum 12 CRUD.
+    Setiap entitas memiliki minimal fungsi Read (listener real-time) dan Create.
+  </p>
+
+  <!-- 4. AUTH -->
+  <h2>4. Firebase Authentication — Register & Login</h2>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>✅ Register</h4>
+      <ul style="padding-left:16px; line-height:2">
+        <li>Fungsi: <code>createUserWithEmailAndPassword()</code></li>
+        <li>File: <code>assets/js/login.js</code></li>
+        <li>Validasi email format & password minimal 6 karakter</li>
+        <li>Setelah register → email verifikasi dikirim otomatis</li>
+        <li>Akun langsung di-sign out hingga email diverifikasi</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>✅ Login</h4>
+      <ul style="padding-left:16px; line-height:2">
+        <li>Fungsi: <code>signInWithEmailAndPassword()</code></li>
+        <li>File: <code>assets/js/login.js</code></li>
+        <li>Cek <code>emailVerified</code> — jika belum, login ditolak</li>
+        <li>Session disimpan di <code>sessionStorage</code></li>
+        <li>Auth guard via <code>onAuthStateChanged()</code> di setiap halaman</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5. WEBMAILER -->
+  <h2>5. Webmailer — Verifikasi Email (Firebase)</h2>
+  <p>
+    Setelah pengguna berhasil mendaftar, sistem secara otomatis mengirimkan email verifikasi
+    menggunakan layanan Firebase Authentication. Pengguna tidak dapat login sebelum mengklik
+    tautan verifikasi di email mereka.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step">User Daftar</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">createUser()<br>Firebase Auth</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">sendEmail<br>Verification()</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Email Masuk<br>ke User</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Klik Link<br>Verifikasi</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Bisa Login ✅</div>
+  </div>
+
+  <div class="code">// assets/js/login.js — fungsi register
+const result = await auth.createUserWithEmailAndPassword(email, pass);
+const user = result.user;
+
+// Kirim email verifikasi otomatis via Firebase
+await user.sendEmailVerification();
+
+// Sign out dulu — user harus verifikasi email sebelum bisa masuk
+await auth.signOut();
+showAlert("Registrasi berhasil! Cek email Anda untuk verifikasi.");</div>
+
+  <p>
+    Saat login, sistem memeriksa status <code>emailVerified</code>. Jika belum diverifikasi,
+    akun otomatis di-sign out dan user diminta untuk memeriksa email terlebih dahulu.
+  </p>
+
+  <!-- 6. BONUS -->
+  <h2>6. Fitur Tambahan — Cloudflare R2 Storage ⭐</h2>
+  <p>
+    Sebagai layanan cloud tambahan di luar Firebase, proyek ini mengintegrasikan
+    <strong>Cloudflare R2</strong> sebagai object storage untuk menyimpan file foto.
+    R2 dipilih karena tidak mengenakan biaya egress (bandwidth keluar) berbeda dengan
+    Firebase Storage.
+  </p>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Konfigurasi R2</h4>
+      <ul style="padding-left:16px; line-height:2; font-size:11pt">
+        <li>Worker URL: <code>alp-r2-uploader.workers.dev</code></li>
+        <li>Public bucket via Cloudflare CDN</li>
+        <li>Bearer token authentication</li>
+        <li>File: <code>assets/js/r2-service.js</code></li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Penggunaan</h4>
+      <ul style="padding-left:16px; line-height:2; font-size:11pt">
+        <li>Foto inventaris alat lab</li>
+        <li>Foto bukti laporan kerusakan</li>
+        <li>Foto inventaris per ruangan</li>
+        <li>URL foto disimpan ke Firebase DB</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="code">// assets/js/r2-service.js — upload foto ke Cloudflare R2
+async function uploadToR2(file, folder = "uploads") {
+  const filename = `${folder}/${Date.now()}-${file.name}`;
+  const response = await fetch(R2_WORKER_URL, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${R2_AUTH_TOKEN}`,
+      "X-File-Name": filename,
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+  // URL publik disimpan ke Firebase Realtime Database
+  return `${R2_PUBLIC_URL}/${filename}`;
+}</div>
+
+  <!-- 7. STRUKTUR FILE -->
+  <h2>7. Struktur Proyek</h2>
+
+  <div class="code">ManajemenLab/
+├── index.html                  ← Dashboard Admin (global view semua lab)
+├── render.yaml                 ← Konfigurasi deployment Render
+├── pages/
+│   ├── home.html               ← Landing page publik
+│   ├── login.html              ← Login & Register per lab
+│   ├── dashboard.html          ← Dashboard per laboratorium
+│   └── room.html               ← Manajemen inventaris per ruangan
+├── assets/
+│   ├── css/
+│   │   ├── style.css           ← Style index.html
+│   │   ├── home.css            ← Style home.html
+│   │   ├── login.css           ← Style login.html
+│   │   └── dashboard.css       ← Style dashboard & room
+│   └── js/
+│       ├── firebase-config.js  ← Inisialisasi Firebase SDK
+│       ├── r2-service.js       ← Cloudflare R2 upload helper
+│       ├── app.js              ← Logic index.html (admin dashboard)
+│       ├── login.js            ← Firebase Auth: login & register
+│       ├── dashboard.js        ← CRUD lab data + real-time listeners
+│       └── room.js             ← CRUD inventaris & jadwal per ruangan
+└── README.md</div>
+
+  <!-- 8. TECH STACK -->
+  <h2>8. Tech Stack & Layanan Cloud</h2>
+
+  <table>
+    <thead>
+      <tr><th>Kategori</th><th>Teknologi</th><th>Fungsi</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Frontend</td>
+        <td>HTML5, CSS3, Vanilla JavaScript (ES6+)</td>
+        <td>Antarmuka pengguna, tanpa framework</td>
+      </tr>
+      <tr>
+        <td>Database</td>
+        <td>Firebase Realtime Database</td>
+        <td>Penyimpanan semua data, sinkronisasi real-time</td>
+      </tr>
+      <tr>
+        <td>Autentikasi</td>
+        <td>Firebase Authentication</td>
+        <td>Register, login, email verifikasi</td>
+      </tr>
+      <tr>
+        <td>File Storage ⭐</td>
+        <td>Cloudflare R2 (bonus)</td>
+        <td>Penyimpanan foto inventaris & laporan</td>
+      </tr>
+      <tr>
+        <td>SDK</td>
+        <td>Firebase SDK v10.12.2 (compat, via CDN)</td>
+        <td>Penghubung frontend dengan Firebase</td>
+      </tr>
+      <tr>
+        <td>Hosting</td>
+        <td>Render (Static Site) / GitHub Pages</td>
+        <td>Deployment aplikasi web</td>
+      </tr>
+      <tr>
+        <td>Repository</td>
+        <td>GitHub</td>
+        <td>Version control & source code</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 9. ALUR SISTEM -->
+  <h2>9. Alur Kerja Sistem</h2>
+
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:4px">
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">1. Buka home.html</div>
+      <span style="color:#64748b">Pilih laboratorium yang ingin diakses</span>
+    </div>
+    <div class="flow-arrow" style="padding-left:70px">↓</div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">2. Login / Register</div>
+      <span style="color:#64748b">Firebase Auth — verifikasi email wajib</span>
+    </div>
+    <div class="flow-arrow" style="padding-left:70px">↓</div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">3. Dashboard Lab</div>
+      <span style="color:#64748b">Data real-time dari Firebase Realtime DB</span>
+    </div>
+    <div class="flow-arrow" style="padding-left:70px">↓</div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">4. CRUD Data</div>
+      <span style="color:#64748b">Inventaris, jadwal, laporan, peminjaman</span>
+    </div>
+    <div class="flow-arrow" style="padding-left:70px">↓</div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">5. Upload Foto</div>
+      <span style="color:#64748b">File → Cloudflare R2, URL → Firebase DB</span>
+    </div>
+    <div class="flow-arrow" style="padding-left:70px">↓</div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div class="flow-step" style="min-width:160px">6. Sync Real-time</div>
+      <span style="color:#64748b">Semua sesi aktif langsung diperbarui</span>
+    </div>
+  </div>
+
+  <!-- 10. REPOSITORI -->
+  <h2>10. Repositori & Deployment</h2>
+  <table>
+    <tbody>
+      <tr><td style="width:180px"><strong>GitHub Repository</strong></td><td>https://github.com/1oneGod1/ManajemenLab</td></tr>
+      <tr><td><strong>Branch Utama</strong></td><td>main (sudah merged dari feature/firebase-auth-cloud-sync-2026-04-14)</td></tr>
+      <tr><td><strong>Deployment</strong></td><td>Render Static Site (render.yaml terkonfigurasi)</td></tr>
+      <tr><td><strong>Firebase Project</strong></td><td>manajemenlab (asia-southeast1)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- KESIMPULAN -->
+  <h2>11. Kesimpulan</h2>
+  <p>
+    Web Report telah berhasil memenuhi seluruh requirements proyek final ALP. Sistem mengimplementasikan
+    lebih dari 12 fungsi CRUD yang terhubung ke Firebase Realtime Database, dilengkapi fitur autentikasi
+    pengguna menggunakan Firebase Authentication dengan verifikasi email otomatis, serta bonus integrasi
+    Cloudflare R2 sebagai layanan cloud storage tambahan untuk penyimpanan foto.
+  </p>
+  <p>
+    Seluruh fitur berjalan secara real-time — setiap perubahan data langsung tersinkronisasi ke semua
+    perangkat yang mengakses sistem tanpa perlu memuat ulang halaman. Sistem ini siap digunakan sebagai
+    solusi manajemen laboratorium yang efisien, terstruktur, dan berbasis cloud.
+  </p>
+
+  <footer>
+    <p>Web Report — ALP Final Project &nbsp;|&nbsp; Andi Pandapotan Purba (0706012324024) &nbsp;|&nbsp; Universitas Ciputra Online Learning 2026</p>
+  </footer>
+
+  <div class="no-print" style="margin-top:32px; text-align:center">
+    <button onclick="window.print()" style="padding:10px 32px; font-size:13pt; background:#1e293b; color:#fff; border:none; border-radius:6px; cursor:pointer">
+      🖨️ Print / Simpan sebagai PDF
+    </button>
+  </div>
+
+</body>
+</html>

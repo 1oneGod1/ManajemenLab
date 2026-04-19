@@ -1449,7 +1449,7 @@ function loadSettings() {
     document.getElementById("autoSaveSetting").checked = autoSave;
 
   const teacher = SESSION_TEACHER || "Dr. Emily Carter";
-  const email = SESSION_EMAIL || "emily@labflow.id";
+  const email = SESSION_EMAIL || "emily@webreport.id";
   const lab = SESSION_LAB || "Computer Lab";
 
   if (document.getElementById("usernameSetting"))
@@ -1511,7 +1511,7 @@ function exportDataAsJSON() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `labflow_backup_${Date.now()}.json`;
+  link.download = `webreport_backup_${Date.now()}.json`;
   link.click();
   URL.revokeObjectURL(url);
   showToast("Data berhasil diekspor sebagai JSON!");
@@ -1526,7 +1526,7 @@ function exportDataAsCSV() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `labflow_facilities_${Date.now()}.csv`;
+  link.download = `webreport_facilities_${Date.now()}.csv`;
   link.click();
   URL.revokeObjectURL(url);
   showToast("Data berhasil diekspor sebagai CSV!");
@@ -1593,7 +1593,7 @@ function updateStorageInfo() {
 }
 
 function showHelp() {
-  alert(`LABFLOW PRO — PANDUAN PENGGUNAAN
+  alert(`WEB REPORT — PANDUAN PENGGUNAAN
 
 1. DASHBOARD
    - Lihat statistik lab (total item, laporan aktif, ketersediaan)
@@ -1614,7 +1614,7 @@ function showHelp() {
    - Data diperbarui otomatis di semua perangkat
    - Tidak perlu refresh halaman
 
-Kontak: support@labflow.id`);
+Kontak: support@webreport.id`);
 }
 
 function showFeedback() {
