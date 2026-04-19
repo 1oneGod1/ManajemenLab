@@ -162,9 +162,10 @@ function initRoomInventoryListeners() {
 function renderRoomStats() {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set("statInventaris", roomItems.length);
-  // Jadwal & Laporan stats will be wired in future steps
-  if (!document.getElementById("statJadwal").textContent.trim()) set("statJadwal", "0");
-  if (!document.getElementById("statLaporan").textContent.trim()) set("statLaporan", "0");
+  set("statJadwal", roomJadwal.length);
+  // Laporan stat will be wired in Step 4
+  const lap = document.getElementById("statLaporan");
+  if (lap && !lap.textContent.trim()) lap.textContent = "0";
 }
 
 function renderRoomCategoryDropdowns() {
@@ -456,6 +457,195 @@ window.removeRoomCategory = async function (name) {
   try {
     await db.ref(`rooms/${roomKey}/categories`).set(next);
     showToast(`Kategori "${name}" dihapus.`);
+  } catch (err) {
+    showToast("Gagal: " + err.message);
+  }
+};
+
+/* ===========================
+   JADWAL PENGGUNAAN PER RUANGAN
+   Schema: rooms/{roomKey}/jadwal/{key}
+           { hari, mulai, selesai, kelas, mapel, pengajar, note, createdAt, updatedAt }
+=========================== */
+const ROOM_HARI_ORDER = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+let roomJadwal = [];
+
+function todayHari() {
+  return ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][new Date().getDay()];
+}
+
+function initRoomJadwalListener() {
+  if (!roomKey) return;
+  db.ref(`rooms/${roomKey}/jadwal`).on("value", (snap) => {
+    roomJadwal = [];
+    snap.forEach((child) => roomJadwal.push({ _key: child.key, ...child.val() }));
+    roomJadwal.sort((a, b) => {
+      const d = ROOM_HARI_ORDER.indexOf(a.hari) - ROOM_HARI_ORDER.indexOf(b.hari);
+      if (d !== 0) return d;
+      return (a.mulai || "").localeCompare(b.mulai || "");
+    });
+    renderRoomJadwal();
+    renderRoomTodaySchedule();
+    renderRoomStats();
+  });
+}
+
+window.renderRoomJadwal = function () {
+  const body = document.getElementById("roomJadwalBody");
+  if (!body) return;
+
+  const q = (document.getElementById("roomJadwalSearch")?.value || "").toLowerCase();
+  const hariFilter = document.getElementById("roomJadwalFilterHari")?.value || "";
+  const today = todayHari();
+
+  const filtered = roomJadwal.filter((j) =>
+    (!hariFilter || j.hari === hariFilter) &&
+    (
+      (j.kelas || "").toLowerCase().includes(q) ||
+      (j.mapel || "").toLowerCase().includes(q) ||
+      (j.pengajar || "").toLowerCase().includes(q)
+    )
+  );
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="7" class="rj-empty">${
+      roomJadwal.length ? "Tidak ada jadwal yang cocok dengan filter." : "Belum ada jadwal. Klik \"+ Tambah Jadwal\" untuk mulai."
+    }</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map((j) => {
+    const isToday = j.hari === today;
+    return `
+      <tr>
+        <td><strong>${escHtml(j.hari || "-")}</strong></td>
+        <td class="rj-time">${escHtml(j.mulai || "-")} – ${escHtml(j.selesai || "-")}</td>
+        <td><strong>${escHtml(j.kelas || "-")}</strong></td>
+        <td>${escHtml(j.mapel || "-")}</td>
+        <td>${escHtml(j.pengajar || "-")}</td>
+        <td><span class="rj-badge ${isToday ? "ok" : "gray"}">${isToday ? "Hari Ini" : "Terjadwal"}</span></td>
+        <td>
+          <div class="rj-act">
+            <button onclick="openEditRoomJadwalModal('${j._key}')">Edit</button>
+            <button class="danger" onclick="deleteRoomJadwal('${j._key}')">Hapus</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+};
+
+function renderRoomTodaySchedule() {
+  const today = todayHari();
+  const list = roomJadwal
+    .filter((j) => j.hari === today)
+    .sort((a, b) => (a.mulai || "").localeCompare(b.mulai || ""));
+
+  const html = list.length
+    ? list.map((j) => `
+        <div class="rj-today-card">
+          <div class="t-time">${escHtml(j.mulai || "-")} – ${escHtml(j.selesai || "-")}</div>
+          <div class="t-kelas">${escHtml(j.kelas || "-")}</div>
+          <div class="t-sub">${escHtml(j.mapel || "-")}${j.pengajar ? ` • ${escHtml(j.pengajar)}` : ""}</div>
+        </div>`).join("")
+    : `<div class="rj-today-empty">Tidak ada jadwal untuk ${today}.</div>`;
+
+  const a = document.getElementById("roomJadwalToday");
+  const b = document.getElementById("roomDashTodayJadwal");
+  if (a) a.innerHTML = html;
+  if (b) b.innerHTML = html;
+}
+
+function hideRoomJadwalErr() {
+  const err = document.getElementById("roomJadwalErr");
+  if (err) { err.style.display = "none"; err.textContent = ""; }
+}
+function showRoomJadwalErr(msg) {
+  const err = document.getElementById("roomJadwalErr");
+  if (err) { err.style.display = "block"; err.textContent = msg; }
+}
+
+window.openAddRoomJadwalModal = function () {
+  document.getElementById("roomJadwalModalTitle").textContent = "Tambah Jadwal";
+  document.getElementById("roomJadwalEditKey").value = "";
+  const firstRadio = document.querySelector('input[name="roomJadwalHari"][value="Senin"]');
+  if (firstRadio) firstRadio.checked = true;
+  document.getElementById("roomJadwalMulai").value = "07:00";
+  document.getElementById("roomJadwalSelesai").value = "09:00";
+  document.getElementById("roomJadwalKelas").value = "";
+  document.getElementById("roomJadwalMapel").value = "";
+  document.getElementById("roomJadwalPengajar").value = "";
+  document.getElementById("roomJadwalNote").value = "";
+  hideRoomJadwalErr();
+  openModal("roomJadwalModal");
+  setTimeout(() => document.getElementById("roomJadwalKelas").focus(), 100);
+};
+
+window.openEditRoomJadwalModal = function (key) {
+  const j = roomJadwal.find((x) => x._key === key);
+  if (!j) return showToast("Jadwal tidak ditemukan.");
+  document.getElementById("roomJadwalModalTitle").textContent = "Edit Jadwal";
+  document.getElementById("roomJadwalEditKey").value = key;
+  document.querySelectorAll('input[name="roomJadwalHari"]').forEach((r) => {
+    r.checked = r.value === (j.hari || "Senin");
+  });
+  document.getElementById("roomJadwalMulai").value = j.mulai || "07:00";
+  document.getElementById("roomJadwalSelesai").value = j.selesai || "09:00";
+  document.getElementById("roomJadwalKelas").value = j.kelas || "";
+  document.getElementById("roomJadwalMapel").value = j.mapel || "";
+  document.getElementById("roomJadwalPengajar").value = j.pengajar || "";
+  document.getElementById("roomJadwalNote").value = j.note || "";
+  hideRoomJadwalErr();
+  openModal("roomJadwalModal");
+};
+
+window.saveRoomJadwal = async function () {
+  hideRoomJadwalErr();
+  const key = document.getElementById("roomJadwalEditKey").value;
+  const hari = document.querySelector('input[name="roomJadwalHari"]:checked')?.value || "Senin";
+  const mulai = document.getElementById("roomJadwalMulai").value;
+  const selesai = document.getElementById("roomJadwalSelesai").value;
+  const kelas = document.getElementById("roomJadwalKelas").value.trim();
+  const mapel = document.getElementById("roomJadwalMapel").value.trim();
+  const pengajar = document.getElementById("roomJadwalPengajar").value.trim();
+  const note = document.getElementById("roomJadwalNote").value.trim();
+
+  if (!kelas) return showRoomJadwalErr("Kelas wajib diisi.");
+  if (!mapel) return showRoomJadwalErr("Mata pelajaran wajib diisi.");
+  if (!mulai || !selesai) return showRoomJadwalErr("Waktu mulai & selesai wajib diisi.");
+  if (mulai >= selesai) return showRoomJadwalErr("Waktu selesai harus setelah waktu mulai.");
+
+  const btn = document.getElementById("roomJadwalSaveBtn");
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = "Menyimpan…";
+
+  try {
+    const payload = { hari, mulai, selesai, kelas, mapel, pengajar, note, updatedAt: Date.now() };
+    if (key) {
+      await db.ref(`rooms/${roomKey}/jadwal/${key}`).update(payload);
+      showToast(`Jadwal ${kelas} diperbarui.`);
+    } else {
+      payload.createdAt = Date.now();
+      await db.ref(`rooms/${roomKey}/jadwal`).push(payload);
+      showToast(`Jadwal ${kelas} ditambahkan.`);
+    }
+    closeModal("roomJadwalModal");
+  } catch (err) {
+    console.error(err);
+    showRoomJadwalErr("Gagal menyimpan: " + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+};
+
+window.deleteRoomJadwal = async function (key) {
+  const j = roomJadwal.find((x) => x._key === key);
+  if (!j) return;
+  if (!confirm(`Hapus jadwal ${j.kelas || "-"} - ${j.mapel || "-"}?`)) return;
+  try {
+    await db.ref(`rooms/${roomKey}/jadwal/${key}`).remove();
+    showToast("Jadwal dihapus.");
   } catch (err) {
     showToast("Gagal: " + err.message);
   }
