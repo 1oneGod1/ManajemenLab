@@ -1,4 +1,4 @@
-# Web Report - Sistem Manajemen Laboratorium Berbasis Cloud
+# Lab Report - Sistem Manajemen Laboratorium Berbasis Cloud
 
 Sistem Manajemen Laboratorium Terpadu adalah platform berbasis web untuk mengelola fasilitas laboratorium secara terpusat di berbagai jenis laboratorium dengan memanfaatkan teknologi Google Firebase dan Cloudflare R2 sebagai infrastruktur cloud.
 
@@ -58,6 +58,19 @@ Fitur mencakup pendataan inventaris terstruktur, pelaporan kerusakan alat, dokum
 
 ### Hosting
 - GitHub Pages
+- Firebase Hosting
+
+### Deploy ke Firebase Hosting
+
+1. Install Firebase CLI (sekali saja)
+  - `npm install -g firebase-tools`
+2. Login ke akun Firebase
+  - `firebase login`
+3. Deploy hosting
+  - `firebase deploy --only hosting`
+
+Project Firebase aktif pada repo ini: `manajemenlab`
+URL Hosting: `https://manajemenlab.web.app`
 
 ## Struktur Proyek
 
@@ -149,6 +162,7 @@ Fitur mencakup pendataan inventaris terstruktur, pelaporan kerusakan alat, dokum
 ### Phase 3: Production Ready ⏳ IN PROGRESS
 - ⏳ Firebase Security Rules (saat ini open untuk testing)
 - ⏳ Performance & error monitoring
+- ✅ Deployment ke Firebase Hosting
 - ⏳ Deployment ke GitHub Pages
 
 ## Cara Menjalankan
